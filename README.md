@@ -1,4 +1,4 @@
-# City Bookings
+# UbiTour
 
 Plataforma de reservas para experiencias locales.  
 Arquitectura Continua basada en módulos, con comunicación asíncrona mediante RabbitMQ.
