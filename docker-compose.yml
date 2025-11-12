@@ -6,7 +6,7 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: fransql
-      MYSQL_DATABASE: bookings     # <- crea la BD en el primer arranque
+      MYSQL_DATABASE: ubitour
     ports: ["3306:3306"]
     volumes:
       - mysql_data:/var/lib/mysql
