@@ -2,26 +2,48 @@
 <html lang="es">
   <head>
     <meta charset="utf-8" />
-    <title>Registrarme - UbiTour</title>
+    <title>Crear cuenta - UbiTour</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
   </head>
   <body class="bg-gray-50 text-gray-900">
-    <div class="min-h-screen flex flex-col">
-      <header class="border-b bg-white">
-        <nav class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          <a href="index.html" class="font-bold text-xl text-blue-700">
-            UbiTour
-          </a>
-          <a href="login.html" class="text-sm text-gray-700 hover:text-blue-700">
-            ¿Ya tienes cuenta? Inicia sesión
-          </a>
-        </nav>
-      </header>
+    <header
+      class="fixed top-0 inset-x-0 z-50 bg-white/95 backdrop-blur border-b"
+    >
+      <nav
+        class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between"
+      >
+        <a href="index.html" class="flex items-center gap-2">
+          <span class="text-blue-600 text-xl">📍</span>
+          <span class="font-semibold text-lg text-blue-700">UbiTour</span>
+        </a>
 
-      <main class="flex-1 flex items-center justify-center px-4">
-        <div class="w-full max-w-md bg-white shadow-sm rounded-lg p-6">
-          <h1 class="text-xl font-semibold mb-4">Crear cuenta</h1>
+        <div class="flex items-center gap-3 text-sm">
+          <a
+            href="login.html"
+            class="px-4 py-2 rounded-full text-gray-700 hover:bg-gray-100"
+          >
+            Iniciar sesión
+          </a>
+          <a
+            href="register.html"
+            class="px-4 py-2 rounded-full bg-blue-700 text-white shadow-sm"
+          >
+            Registrarme
+          </a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="pt-24">
+      <div class="max-w-6xl mx-auto px-4">
+        <div
+          class="max-w-md mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8"
+        >
+          <h1 class="text-lg font-semibold text-center mb-1">Crear cuenta</h1>
+          <p class="text-xs text-gray-500 text-center mb-6">
+            Únete a UbiTour y comienza a explorar experiencias únicas.
+          </p>
 
           <form
             hx-post="http://localhost:3000/auth/register"
@@ -30,47 +52,62 @@
             class="space-y-4"
           >
             <div>
-              <label class="block text-sm font-medium mb-1">Nombre</label>
+              <label class="block text-xs font-medium mb-1">Nombre</label>
               <input
                 name="name"
                 type="text"
                 required
-                class="w-full border rounded px-3 py-2 text-sm"
+                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500"
+                placeholder="Tu nombre completo"
               />
             </div>
 
             <div>
-              <label class="block text-sm font-medium mb-1">Correo electrónico</label>
+              <label class="block text-xs font-medium mb-1"
+                >Correo electrónico</label
+              >
               <input
                 name="email"
                 type="email"
                 required
-                class="w-full border rounded px-3 py-2 text-sm"
+                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500"
+                placeholder="tu@email.com"
               />
             </div>
 
             <div>
-              <label class="block text-sm font-medium mb-1">Contraseña</label>
+              <label class="block text-xs font-medium mb-1">Contraseña</label>
               <input
                 name="password"
                 type="password"
                 minlength="6"
                 required
-                class="w-full border rounded px-3 py-2 text-sm"
+                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500"
+                placeholder="Mínimo 6 caracteres"
               />
             </div>
 
             <button
               type="submit"
-              class="w-full bg-blue-600 text-white py-2 rounded text-sm font-medium hover:bg-blue-700"
+              class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-full text-sm font-medium mt-2"
             >
-              Registrarme
+              Crear cuenta
             </button>
           </form>
 
-          <div id="register-result" class="mt-4 text-sm"></div>
+          <div
+            id="register-result"
+            class="mt-4 text-xs text-center text-gray-700"
+          ></div>
+
+          <p class="mt-6 text-xs text-center text-gray-500">
+            ¿Ya tienes cuenta?
+            <a href="login.html" class="text-blue-600 hover:underline">
+              Inicia sesión
+            </a>
+          </p>
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   </body>
 </html>
