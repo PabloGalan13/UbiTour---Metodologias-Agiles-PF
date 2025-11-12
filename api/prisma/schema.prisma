@@ -1,0 +1,92 @@
+// ---------- Data source & generator ----------
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ---------- Modelos ----------
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  password     String
+  name         String
+  role         Role          @default(VISITOR)
+  status       String        @default("active")
+  createdAt    DateTime      @default(now())
+  reservations Reservation[]
+  Provider     Provider?
+}
+
+model Provider {
+  id          String       @id @default(uuid())
+  userId      String       @unique
+  kycStatus   String       @default("unverified")
+  phone       String?
+  user        User         @relation(fields: [userId], references: [id])
+  experiences Experience[]
+}
+
+model Experience {
+  id           String        @id @default(uuid())
+  providerId   String
+  title        String
+  description  String
+  price        Decimal       @db.Decimal(10, 2)
+  capacity     Int
+  startAt      DateTime
+  endAt        DateTime
+  location     Json
+  photos       Json
+  isActive     Boolean       @default(true)
+  provider     Provider      @relation(fields: [providerId], references: [id])
+  reservations Reservation[]
+}
+
+model Reservation {
+  id           String            @id @default(uuid())
+  userId       String
+  experienceId String
+  qty          Int
+  amountTotal  Decimal           @db.Decimal(10, 2)
+  status       ReservationStatus @default(CREATED)
+  createdAt    DateTime          @default(now())
+  user         User              @relation(fields: [userId], references: [id])
+  experience   Experience        @relation(fields: [experienceId], references: [id])
+  Payment      Payment?
+}
+
+model Payment {
+  id            String      @id @default(uuid())
+  reservationId String      @unique
+  status        String // PENDING | SUCCEEDED | FAILED | REFUNDED
+  amount        Decimal     @db.Decimal(10, 2)
+  raw           Json?
+  reservation   Reservation @relation(fields: [reservationId], references: [id])
+}
+
+model OutboxEvent {
+  id        String   @id @default(uuid())
+  type      String
+  payload   Json
+  status    String   @default("PENDING") // PENDING | SENT | FAILED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  VISITOR
+  PROVIDER
+  ADMIN
+}
+
+enum ReservationStatus {
+  CREATED
+  PENDING_PAYMENT
+  PAID
+  CANCELLED
+  REFUNDED
+}
