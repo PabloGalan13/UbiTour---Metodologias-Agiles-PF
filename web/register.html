@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Registrarme - UbiTour</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  </head>
+  <body class="bg-gray-50 text-gray-900">
+    <div class="min-h-screen flex flex-col">
+      <header class="border-b bg-white">
+        <nav class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+          <a href="index.html" class="font-bold text-xl text-blue-700">
+            UbiTour
+          </a>
+          <a href="login.html" class="text-sm text-gray-700 hover:text-blue-700">
+            ¿Ya tienes cuenta? Inicia sesión
+          </a>
+        </nav>
+      </header>
+
+      <main class="flex-1 flex items-center justify-center px-4">
+        <div class="w-full max-w-md bg-white shadow-sm rounded-lg p-6">
+          <h1 class="text-xl font-semibold mb-4">Crear cuenta</h1>
+
+          <form
+            hx-post="http://localhost:3000/auth/register"
+            hx-target="#register-result"
+            hx-swap="innerHTML"
+            class="space-y-4"
+          >
+            <div>
+              <label class="block text-sm font-medium mb-1">Nombre</label>
+              <input
+                name="name"
+                type="text"
+                required
+                class="w-full border rounded px-3 py-2 text-sm"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1">Correo electrónico</label>
+              <input
+                name="email"
+                type="email"
+                required
+                class="w-full border rounded px-3 py-2 text-sm"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1">Contraseña</label>
+              <input
+                name="password"
+                type="password"
+                minlength="6"
+                required
+                class="w-full border rounded px-3 py-2 text-sm"
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="w-full bg-blue-600 text-white py-2 rounded text-sm font-medium hover:bg-blue-700"
+            >
+              Registrarme
+            </button>
+          </form>
+
+          <div id="register-result" class="mt-4 text-sm"></div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>
