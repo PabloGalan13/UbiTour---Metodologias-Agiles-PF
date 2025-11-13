@@ -1,4 +1,5 @@
-import { Body, Controller, Post } from '@nestjs/common';
+// src/modules/auth/auth.controller.ts
+import { Controller, Post, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 
@@ -7,7 +8,13 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto);
+  async register(@Body() dto: RegisterDto) {
+    await this.authService.register(dto);
+
+    return `
+      <p class="text-xs text-green-600 mt-2">
+        Cuenta creada con éxito. Revisa tu correo de confirmación.
+      </p>
+    `;
   }
 }
