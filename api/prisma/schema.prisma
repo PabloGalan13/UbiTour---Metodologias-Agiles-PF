@@ -21,6 +21,8 @@ model User {
   verificationToken String?  @unique
   reservations Reservation[]
   Provider     Provider?
+  resetToken        String?
+  resetTokenExpires DateTime?
 }
 
 model Provider {
