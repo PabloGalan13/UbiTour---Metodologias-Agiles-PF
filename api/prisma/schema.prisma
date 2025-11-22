@@ -17,6 +17,8 @@ model User {
   role         Role          @default(VISITOR)
   status       String        @default("active")
   createdAt    DateTime      @default(now())
+  isVerified       Boolean   @default(false)
+  verificationToken String?  @unique
   reservations Reservation[]
   Provider     Provider?
 }

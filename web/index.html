@@ -1,18 +1,232 @@
 <!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>Experiencias locales</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
-</head>
-<body class="bg-gray-50 text-gray-900">
-  <header class="max-w-5xl mx-auto py-6 px-4">
-    <h1 class="text-3xl font-bold">Experiencias locales</h1>
-    <p class="text-sm text-gray-500">Frontend base (Tailwind + htmx)</p>
-  </header>
-  <main class="max-w-5xl mx-auto px-4">
-    <p>Interfaz lista. Endpoints se conectarán después.</p>
-  </main>
-</body>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>UbiTour - Experiencias locales</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  </head>
+  <body class="bg-gray-50 text-gray-900">
+    <header
+      class="fixed top-0 inset-x-0 z-50 bg-white/95 backdrop-blur border-b"
+    >
+      <nav
+        class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between"
+      >
+        <!-- Logo / título -->
+        <a href="index.html" class="flex items-center gap-2">
+          <span class="text-blue-600 text-xl">📍</span>
+          <span class="font-semibold text-lg text-blue-700">UbiTour</span>
+        </a>
+
+        <!-- Botones derecha -->
+        <div class="flex items-center gap-3 text-sm">
+          <a
+            href="login.html"
+            class="px-4 py-2 rounded-full text-gray-700 hover:bg-gray-100"
+          >
+            Iniciar sesión
+          </a>
+          <a
+            href="register.html"
+            class="px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700"
+          >
+            Registrarme
+          </a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="pt-20">
+      <!-- HERO -->
+      <section class="bg-gradient-to-r from-blue-600 to-blue-500 text-white">
+        <div class="max-w-6xl mx-auto px-4 py-16">
+          <div class="max-w-lg">
+            <p class="text-sm mb-2 opacity-80">
+              Explora experiencias locales únicas
+            </p>
+            <h1 class="text-3xl md:text-4xl font-semibold mb-3">
+              Descubre actividades auténticas con guías locales expertos
+            </h1>
+            <p class="text-sm md:text-base mb-6 opacity-90">
+              Encuentra tours, talleres y actividades inolvidables en tu ciudad
+              o en tu próximo destino.
+            </p>
+
+            <button
+              class="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-5 py-2 rounded-full text-sm font-medium"
+            >
+              🔍 Buscar experiencias
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- EXPERIENCIAS DESTACADAS -->
+      <section class="bg-gray-50">
+        <div class="max-w-6xl mx-auto px-4 py-10">
+          <div class="text-center mb-6">
+            <h2 class="text-xl font-semibold mb-1">Experiencias destacadas</h2>
+            <p class="text-gray-600 text-sm">
+              Descubre las actividades más populares y mejor valoradas por
+              nuestra comunidad.
+            </p>
+          </div>
+
+          <!-- Grid de experiencias -->
+          <div class="grid gap-6 md:grid-cols-3">
+  <!-- 1 -->
+  <article class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="h-40">
+      <img
+        src="https://images.unsplash.com/photo-1758499579274-1de8da3271a6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaXR5JTIwdG91ciUyMGV4cGVyaWVuY2V8ZW58MXx8fHwxNzYyOTkwMTAwfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+        alt="Tour histórico por el centro"
+        class="w-full h-full object-cover"
+      />
+    </div>
+    <div class="p-4 space-y-2">
+      <h3 class="font-semibold text-sm">Tour histórico por el centro</h3>
+      <p class="text-xs text-gray-500 flex items-center gap-1">
+        📍 Madrid, España
+      </p>
+      <p class="text-sm font-semibold text-blue-600">
+        $35 <span class="text-xs text-gray-500">/ persona</span>
+      </p>
+      <button
+        class="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white text-xs py-2 rounded-md"
+      >
+        Ver detalles
+      </button>
+    </div>
+  </article>
+
+  <!-- 2 -->
+  <article class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="h-40">
+      <img
+        src="https://images.unsplash.com/photo-1631692994621-d26f83cf4db8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsb2NhbCUyMGZvb2QlMjBtYXJrZXR8ZW58MXx8fHwxNzYyOTkwMTAxfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+        alt="Experiencia gastronómica local"
+        class="w-full h-full object-cover"
+      />
+    </div>
+    <div class="p-4 space-y-2">
+      <h3 class="font-semibold text-sm">Experiencia gastronómica local</h3>
+      <p class="text-xs text-gray-500 flex items-center gap-1">
+        📍 Barcelona, España
+      </p>
+      <p class="text-sm font-semibold text-blue-600">
+        $45 <span class="text-xs text-gray-500">/ persona</span>
+      </p>
+      <button
+        class="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white text-xs py-2 rounded-md"
+      >
+        Ver detalles
+      </button>
+    </div>
+  </article>
+
+  <!-- 3 -->
+  <article class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="h-40">
+      <img
+        src="https://images.unsplash.com/photo-1554881070-0f77dbb0f2b7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjdWx0dXJhbCUyMHdvcmtzaG9wfGVufDF8fHx8MTc2Mjk5MDEwMXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+        alt="Taller de cerámica tradicional"
+        class="w-full h-full object-cover"
+      />
+    </div>
+    <div class="p-4 space-y-2">
+      <h3 class="font-semibold text-sm">Taller de cerámica tradicional</h3>
+      <p class="text-xs text-gray-500 flex items-center gap-1">
+        📍 Valencia, España
+      </p>
+      <p class="text-sm font-semibold text-blue-600">
+        $55 <span class="text-xs text-gray-500">/ persona</span>
+      </p>
+      <button
+        class="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white text-xs py-2 rounded-md"
+      >
+        Ver detalles
+      </button>
+    </div>
+  </article>
+
+  <!-- 4 -->
+  <article class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="h-40">
+      <img
+        src="https://images.unsplash.com/photo-1581153438971-3222a5814529?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxvdXRkb29yJTIwYWR2ZW50dXJlJTIwaGlraW5nfGVufDF8fHx8MTc2Mjk2MTA1N3ww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+        alt="Senderismo con guía local"
+        class="w-full h-full object-cover"
+      />
+    </div>
+    <div class="p-4 space-y-2">
+      <h3 class="font-semibold text-sm">Senderismo con guía local</h3>
+      <p class="text-xs text-gray-500 flex items-center gap-1">
+        📍 Granada, España
+      </p>
+      <p class="text-sm font-semibold text-blue-600">
+        $40 <span class="text-xs text-gray-500">/ persona</span>
+      </p>
+      <button
+        class="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white text-xs py-2 rounded-md"
+      >
+        Ver detalles
+      </button>
+    </div>
+  </article>
+
+  <!-- 5 -->
+  <article class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="h-40">
+      <img
+        src="https://images.unsplash.com/photo-1687877954846-00876ced28bf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3aW5lJTIwdGFzdGluZyUyMHZpbmV5YXJkfGVufDF8fHx8MTc2Mjg5MzIzNXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+        alt="Cata de vinos en bodega"
+        class="w-full h-full object-cover"
+      />
+    </div>
+    <div class="p-4 space-y-2">
+      <h3 class="font-semibold text-sm">Cata de vinos en bodega</h3>
+      <p class="text-xs text-gray-500 flex items-center gap-1">
+        📍 La Rioja, España
+      </p>
+      <p class="text-sm font-semibold text-blue-600">
+        $60 <span class="text-xs text-gray-500">/ persona</span>
+      </p>
+      <button
+        class="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white text-xs py-2 rounded-md"
+      >
+        Ver detalles
+      </button>
+    </div>
+  </article>
+
+  <!-- 6 -->
+  <article class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="h-40">
+      <img
+        src="https://images.unsplash.com/photo-1609211373254-b52e03ba0c85?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb29raW5nJTIwY2xhc3MlMjBraXRjaGVufGVufDF8fHx8MTc2Mjk1MDEyMnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+        alt="Clase de cocina mediterránea"
+        class="w-full h-full object-cover"
+      />
+    </div>
+    <div class="p-4 space-y-2">
+      <h3 class="font-semibold text-sm">Clase de cocina mediterránea</h3>
+      <p class="text-xs text-gray-500 flex items-center gap-1">
+        📍 Sevilla, España
+      </p>
+      <p class="text-sm font-semibold text-blue-600">
+        $50 <span class="text-xs text-gray-500">/ persona</span>
+      </p>
+      <button
+        class="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white text-xs py-2 rounded-md"
+      >
+        Ver detalles
+      </button>
+    </div>
+  </article>
+</div>
+        </div>
+      </section>
+    </main>
+  </body>
 </html>
