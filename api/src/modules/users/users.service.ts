@@ -5,6 +5,24 @@ import { PrismaService } from '../../infra/prisma.service';
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Busca un usuario por su ID para propósitos de autenticación (JWT Strategy)
+   * o si se necesita obtener campos específicos.
+   */
+  async findOne(id: string) {
+    return this.prisma.user.findUnique({ 
+      where: { id },
+      select: {
+        id: true,
+        email: true,      // Necesario para la estrategia JWT (payload) y login
+        name: true,
+        role: true,
+        isVerified: true,
+        password: true,   // ¡CRUCIAL para comparar el hash en el login!
+      }
+    });
+  }
+
   findByEmail(email: string) {
     return this.prisma.user.findUnique({ where: { email } });
   }

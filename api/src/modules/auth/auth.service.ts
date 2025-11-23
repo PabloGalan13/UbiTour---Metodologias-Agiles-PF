@@ -47,7 +47,7 @@ export class AuthService {
     `;
   }
 
-    async login(dto: LoginDto) {
+  async login(dto: LoginDto) {
     const user = await this.usersService.findByEmail(dto.email);
 
     if (!user) {
@@ -64,7 +64,7 @@ export class AuthService {
     }
 
     const payload = {
-      sub: user.id,
+      userId: user.id,
       email: user.email,
       role: user.role,
     };
@@ -82,7 +82,7 @@ export class AuthService {
     };
   }
 
-    async requestPasswordReset(email: string) {
+  async requestPasswordReset(email: string) {
     const user = await this.usersService.findByEmail(email);
     if (!user) {
       throw new BadRequestException('Correo no encontrado');

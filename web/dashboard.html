@@ -1,115 +1,72 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UbiTour — Panel Principal</title>
-
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Inter', sans-serif;
-            background: #f3f4f6;
-        }
-
-        header {
-            background: #2563eb;
-            padding: 1rem 2rem;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logout-btn {
-            background: #ef4444;
-            border: none;
-            color: white;
-            padding: .5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: .9rem;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 2rem auto;
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        }
-
-        h1 {
-            margin-top: 0;
-            color: #111827;
-        }
-
-        .info-box {
-            background: #eef2ff;
-            padding: 1rem;
-            border-left: 4px solid #6366f1;
-            border-radius: 6px;
-            margin-top: 1rem;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body>
+<body class="bg-gray-50 text-gray-900">
 
-    <header>
-        <h2>UbiTour</h2>
-        <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+    <header class="fixed top-0 inset-x-0 z-50 bg-white/95 backdrop-blur border-b">
+        <nav class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            
+            <div class="flex items-center gap-4 text-sm">
+                <a href="index.html" class="flex items-center gap-1 text-gray-700 hover:text-blue-600 transition duration-150">
+                    <span class="text-lg">←</span>
+                    <span class="font-medium">Experiencias</span>
+                </a>
+                
+                <span class="text-gray-300">|</span>
+                
+                <a href="index.html" class="flex items-center gap-2">
+                    <span class="text-blue-600 text-xl">📍</span>
+                    <span class="font-semibold text-lg text-blue-700">UbiTour</span>
+                </a>
+            </div>
+
+            <div class="flex items-center gap-3 text-sm">
+                <button
+                    onclick="logout()"
+                    class="px-4 py-2 rounded-full text-white bg-red-500 hover:bg-red-600 font-semibold transition duration-150"
+                >
+                    Cerrar sesión
+                </button>
+            </div>
+        </nav>
     </header>
 
-    <div class="container">
-        <h1>Bienvenido a tu Panel 🧭</h1>
+    <main class="pt-20">
+        <div class="max-w-4xl mx-auto px-4 py-10">
 
-        <p>Has iniciado sesión correctamente.</p>
+            <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                <h1 class="text-2xl font-semibold text-gray-800 mb-2">Bienvenido a tu Panel 🧭</h1>
+                <p class="text-gray-500 mb-6">Gestiona tus reservas, perfil y más.</p>
 
-        <div id="userBox" class="info-box">
-            Cargando tus datos...
+                <div class="flex border-b border-gray-200 mb-6">
+                    <button class="py-2 px-4 text-sm font-medium border-b-2 border-blue-600 text-blue-600">
+                        Mi Perfil
+                    </button>
+                    <button class="py-2 px-4 text-sm font-medium text-gray-500 hover:text-gray-700">
+                        Mis Reservas
+                    </button>
+                    </div>
+
+                <div class="space-y-4">
+                    <p class="text-sm font-medium text-green-600">Has iniciado sesión correctamente.</p>
+                    
+                    <div id="userBox" class="bg-blue-50 border-l-4 border-blue-600 text-blue-800 p-4 rounded-md">
+                        Cargando tus datos...
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
+    </main>
 
-    <script>
-        const token = localStorage.getItem("access_token");
-
-        if (!token) {
-            window.location.href = "login.html";
-        }
-
-        // Simulación de obtener perfil (cuando tengas endpoint real puedes cambiarlo)
-        async function fetchUser() {
-            try {
-                const res = await fetch("http://localhost:3000/auth/me", {
-                    headers: { Authorization: "Bearer " + token }
-                });
-
-                if (!res.ok) throw new Error();
-
-                const user = await res.json();
-
-                document.getElementById("userBox").innerHTML = `
-          <strong>Nombre:</strong> ${user.name}<br>
-          <strong>Email:</strong> ${user.email}<br>
-          <strong>Rol:</strong> ${user.role}
-        `;
-            } catch {
-                document.getElementById("userBox").innerHTML = `
-          Hubo un problema al cargar tus datos.
-        `;
-            }
-        }
-
-        fetchUser();
-
-        function logout() {
-            localStorage.removeItem("token");
-            window.location.href = "login.html";
-        }
-    </script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
 
 </body>
 
