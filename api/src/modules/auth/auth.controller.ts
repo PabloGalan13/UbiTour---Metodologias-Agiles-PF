@@ -5,14 +5,14 @@ import {
   Body,
   Query,
   BadRequestException,
-  UseGuards, 
-  Req, 
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { AuthGuard } from '@nestjs/passport'; 
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
@@ -26,12 +26,17 @@ export class AuthController {
     return this.authService.register(dto);
   }
 
+  @Post('register-provider')
+  async registerProvider(@Body() dto: RegisterDto) {
+    return this.authService.registerProvider(dto);
+  }
+
   @Post('login')
   async login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
 
-  @UseGuards(AuthGuard('jwt')) 
+  @UseGuards(AuthGuard('jwt'))
   @Get('me')
   getMe(@Req() req) {
     return req.user;

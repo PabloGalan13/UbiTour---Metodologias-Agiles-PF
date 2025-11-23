@@ -47,6 +47,43 @@ export class AuthService {
     `;
   }
 
+  // Nuevo método para registrar un proveedor
+async registerProvider(dto: RegisterDto) {
+    const existing = await this.usersService.findByEmail(dto.email);
+    if (existing) {
+        throw new BadRequestException('Correo ya registrado');
+    }
+
+    const passwordHash = await bcrypt.hash(dto.password, 10);
+    const verificationToken = randomBytes(32).toString('hex');
+
+    // 1. Crear el usuario con rol PROVIDER
+    const user = await this.usersService.createProvider({ // Llamaremos a este nuevo método
+        email: dto.email,
+        name: dto.name,
+        passwordHash,
+        verificationToken,
+    });
+    
+    // 2. Crear la entrada en la tabla Provider, vinculada al nuevo usuario
+    await this.usersService.createProviderEntry(user.id);
+
+    // 3. Emitir evento de confirmación de correo
+    const confirmationUrl = `http://localhost:3000/auth/confirm?token=${verificationToken}`;
+
+    this.eventEmitter.emit('user.registered', {
+        email: user.email,
+        name: user.name,
+        confirmationUrl,
+    });
+
+    return `
+      <p class="text-xs text-green-600 mt-2">
+        Cuenta de Proveedor creada con éxito. Revisa tu correo de confirmación.
+      </p>
+    `;
+}
+
   async login(dto: LoginDto) {
     const user = await this.usersService.findByEmail(dto.email);
 

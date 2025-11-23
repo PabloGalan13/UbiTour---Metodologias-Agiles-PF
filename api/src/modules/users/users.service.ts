@@ -3,14 +3,14 @@ import { PrismaService } from '../../infra/prisma.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   /**
    * Busca un usuario por su ID para propósitos de autenticación (JWT Strategy)
    * o si se necesita obtener campos específicos.
    */
   async findOne(id: string) {
-    return this.prisma.user.findUnique({ 
+    return this.prisma.user.findUnique({
       where: { id },
       select: {
         id: true,
@@ -39,7 +39,33 @@ export class UsersService {
         name: data.name,
         password: data.passwordHash,
         role: 'VISITOR',
-        verificationToken: data.verificationToken, 
+        verificationToken: data.verificationToken,
+      },
+    });
+  }
+
+  async createProvider(data: {
+    email: string;
+    name: string;
+    passwordHash: string;
+    verificationToken: string;
+  }) {
+    return this.prisma.user.create({
+      data: {
+        email: data.email,
+        name: data.name,
+        password: data.passwordHash,
+        role: 'PROVIDER', 
+        verificationToken: data.verificationToken,
+      },
+    });
+  }
+
+  async createProviderEntry(userId: string) {
+    return this.prisma.provider.create({
+      data: {
+        userId: userId,
+        kycStatus: 'unverified',
       },
     });
   }

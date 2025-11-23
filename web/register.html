@@ -1,137 +1,108 @@
 <!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <title>Crear cuenta - UbiTour</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
-  </head>
-  <body class="bg-gray-50 text-gray-900">
-    <header
-      class="fixed top-0 inset-x-0 z-50 bg-white/95 backdrop-blur border-b"
-    >
-      <nav
-        class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between"
-      >
-        <a href="index.html" class="flex items-center gap-2">
-          <span class="text-blue-600 text-xl">📍</span>
-          <span class="font-semibold text-lg text-blue-700">UbiTour</span>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Crear cuenta - UbiTour</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-900">
+  <header class="fixed top-0 inset-x-0 z-50 bg-white/95 backdrop-blur border-b">
+    <nav class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2">
+        <span class="text-blue-600 text-xl">📍</span>
+        <span class="font-semibold text-lg text-blue-700">UbiTour</span>
+      </a>
+
+      <div class="flex items-center gap-3 text-sm">
+        <a href="login.html" class="px-4 py-2 rounded-full text-gray-700 hover:bg-gray-100">
+          Iniciar sesión
         </a>
-
-        <div class="flex items-center gap-3 text-sm">
-          <a
-            href="login.html"
-            class="px-4 py-2 rounded-full text-gray-700 hover:bg-gray-100"
-          >
-            Iniciar sesión
-          </a>
-          <a
-            href="register.html"
-            class="px-4 py-2 rounded-full bg-blue-700 text-white shadow-sm"
-          >
-            Registrarme
-          </a>
-        </div>
-      </nav>
-    </header>
-
-    <main class="pt-24">
-      <div class="max-w-6xl mx-auto px-4">
-        <div
-          class="max-w-md mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8"
-        >
-          <h1 class="text-lg font-semibold text-center mb-1">Crear cuenta</h1>
-          <p class="text-xs text-gray-500 text-center mb-6">
-            Únete a UbiTour y comienza a explorar experiencias únicas.
-          </p>
-
-          <form
-            hx-post="http://localhost:3000/auth/register"
-            hx-target="#register-result"
-            hx-swap="innerHTML"
-            class="space-y-4"
-          >
-            <div>
-              <label class="block text-xs font-medium mb-1">Nombre</label>
-              <input
-                name="name"
-                type="text"
-                required
-                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500"
-                placeholder="Tu nombre completo"
-              />
-            </div>
-
-            <div>
-              <label class="block text-xs font-medium mb-1"
-                >Correo electrónico</label
-              >
-              <input
-                name="email"
-                type="email"
-                required
-                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500"
-                placeholder="tu@email.com"
-              />
-            </div>
-
-            <div>
-              <label class="block text-xs font-medium mb-1">Contraseña</label>
-              <input
-                name="password"
-                type="password"
-                minlength="6"
-                required
-                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500"
-                placeholder="Mínimo 6 caracteres"
-              />
-            </div>
-
-            <button
-              type="submit"
-              class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-full text-sm font-medium mt-2"
-            >
-              Crear cuenta
-            </button>
-          </form>
-
-          <div
-            id="register-result"
-            class="mt-4 text-xs text-center text-gray-700"
-          ></div>
-
-          <p class="mt-6 text-xs text-center text-gray-500">
-            ¿Ya tienes cuenta?
-            <a href="login.html" class="text-blue-600 hover:underline">
-              Inicia sesión
-            </a>
-          </p>
-        </div>
+        <a href="registerProvider.html" class="px-4 py-2 rounded-full text-blue-600 hover:bg-blue-50/50"
+          style="border: 1px solid #2563eb;">
+          Vende experiencias
+        </a>
+        <a href="register.html" class="px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700">
+          Registrarme
+        </a>
       </div>
-    </main>
-    <script>
-  document.body.addEventListener("htmx:responseError", function (event) {
-    const xhr = event.detail.xhr;
-    let message = "Ocurrió un error. Intenta de nuevo.";
+    </nav>
+  </header>
 
-    try {
-      const data = JSON.parse(xhr.responseText);
-      if (typeof data.message === "string") {
-        message = data.message;
-      } else if (Array.isArray(data.message)) {
-        message = data.message.join(", ");
+  <main class="pt-24">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="max-w-md mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <h1 class="text-lg font-semibold text-center mb-1">Crear cuenta</h1>
+        <p class="text-xs text-gray-500 text-center mb-6">
+          Únete a UbiTour y comienza a explorar experiencias únicas.
+        </p>
+
+        <form hx-post="http://localhost:3000/auth/register" hx-target="#register-result" hx-swap="innerHTML"
+          class="space-y-4">
+          <div>
+            <label class="block text-xs font-medium mb-1">Nombre</label>
+            <input name="name" type="text" required
+              class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500"
+              placeholder="Tu nombre completo" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium mb-1">Correo electrónico</label>
+            <input name="email" type="email" required
+              class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500"
+              placeholder="tu@email.com" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium mb-1">Contraseña</label>
+            <input name="password" type="password" minlength="6" required
+              class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500"
+              placeholder="Mínimo 6 caracteres" />
+          </div>
+
+          <button type="submit"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-full text-sm font-medium mt-2">
+            Crear cuenta
+          </button>
+        </form>
+
+        <div id="register-result" class="mt-4 text-xs text-center text-gray-700"></div>
+
+        <p class="mt-6 text-xs text-center text-gray-500">
+          ¿Ya tienes cuenta?
+          <a href="login.html" class="text-blue-600 hover:underline">
+            Inicia sesión
+          </a>
+        </p>
+      </div>
+    </div>
+  </main>
+  <script>
+    document.body.addEventListener("htmx:responseError", function (event) {
+      const xhr = event.detail.xhr;
+      let message = "Ocurrió un error. Intenta de nuevo.";
+
+      try {
+        const data = JSON.parse(xhr.responseText);
+        if (typeof data.message === "string") {
+          message = data.message;
+        } else if (Array.isArray(data.message)) {
+          message = data.message.join(", ");
+        }
+      } catch (e) {
+        if (xhr.responseText) message = xhr.responseText;
       }
-    } catch (e) {
-      if (xhr.responseText) message = xhr.responseText;
-    }
 
-    const target = document.getElementById("register-result");
-    if (target) {
-      target.innerHTML =
-        '<p class="text-xs text-red-600 mt-2">' + message + "</p>";
-    }
-  });
-</script>
+      const target = document.getElementById("register-result");
+      if (target) {
+        target.innerHTML =
+          '<p class="text-xs text-red-600 mt-2">' + message + "</p>";
+      }
+    });
+  </script>
 
-  </body>
+</body>
+
 </html>
