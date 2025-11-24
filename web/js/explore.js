@@ -13,7 +13,6 @@ async function loadExperiences() {
 
     let endpoint = "http://localhost:3000/experiences";
 
-    // Si hay filtros → usar /filter
     if ([city, minPrice, maxPrice, date].some(v => v !== "")) {
         endpoint += "/filter?" + urlParams.toString();
     }
@@ -50,5 +49,4 @@ function renderExperiences(experiences) {
     });
 }
 
-// Cargar todas al iniciar
 window.onload = loadExperiences;
