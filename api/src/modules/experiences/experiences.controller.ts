@@ -12,40 +12,45 @@ export class ExperiencesController {
     @Post() // POST /experiences
     @UseInterceptors(
         // Usamos FilesInterceptor para múltiples archivos, nombrados 'photos'
-        FilesInterceptor('photos', 10) 
+        FilesInterceptor('photos', 10)
     )
     async create(
         @Body() createExperienceDto: CreateExperienceDto,
         @Req() req: any, // Aquí se inyecta el usuario
         @UploadedFiles() photos: Express.Multer.File[] // Aquí se inyectan los archivos
     ) {
-        const user = req.user; 
-        
+        const user = req.user;
+
         // 1. COMPROBACIONES CRÍTICAS DE SEGURIDAD Y TIPOS (Ya definidas)
         if (!user || !user.userId || typeof user.userId !== 'string') {
             throw new ForbiddenException('Error de Seguridad: Token no resuelto o inválido.');
         }
         if (user.role !== 'PROVIDER') {
             throw new ForbiddenException('Acceso denegado: Solo los proveedores pueden crear experiencias.');
-        } 
+        }
 
         const userId = user.userId;
-        
+
         // 2. OBTENER ProviderId
         const providerId = await this.experiencesService.findProviderIdByUserId(userId);
-        
-        // 3. PROCESAMIENTO DE FOTOS Y CORRECCIÓN DE JSON
-        // Convertimos el array de archivos a un array de URLs simuladas (string[])
+
+        // 3. PROCESAMIENTO DE FOTOS Y CREACIÓN DE URLs LOCALES
         const photoUrls = photos.map(file => {
-            // Nota: En producción, aquí harías la subida real a S3 y obtendrías la URL pública.
-            return `http://storage.ubitur.com/experiences/${file.filename || file.originalname}`;
+            // 🔑 CAMBIO CLAVE: Usamos el nombre que Multer le asignó al archivo.
+            // Multer usa 'filename' si se configura storage. Usaremos 'filename' o 'originalname' como fallback.
+            const filename = file.filename || file.originalname;
+
+            // CONSTRUCCIÓN DE LA URL PÚBLICA DEL SERVIDOR LOCAL
+            // Asumimos que el servidor NestJS está sirviendo la carpeta 'uploads'
+            // a través de la ruta pública '/uploads' o '/'
+            return `http://localhost:3000/uploads/${filename}`;
         });
-        
+
         // 4. CREAR DTO FINAL
         const finalDto = {
             ...createExperienceDto,
             // 🔑 CORRECCIÓN: Pasar el ARRAY DE STRINGS (JSON nativo) directamente.
-            photos: photoUrls, 
+            photos: photoUrls,
             // location: ya debe ser un string JSON válido gracias a class-transformer.
         }
 

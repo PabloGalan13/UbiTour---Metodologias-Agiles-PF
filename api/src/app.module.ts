@@ -12,9 +12,17 @@ import { ProvidersModule } from './modules/providers/providers.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join, resolve } from 'path'; // <--- Asegúrate de importar 'resolve'
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      // 🔑 CORRECCIÓN: Usamos path.resolve() para forzar la ruta absoluta del proyecto.
+      rootPath: resolve('./uploads'), 
+      serveRoot: '/uploads', // Mantenemos el prefijo /uploads/
+    }),
+
     ConfigModule.forRoot({ isGlobal: true }),
     EventEmitterModule.forRoot(),
 
