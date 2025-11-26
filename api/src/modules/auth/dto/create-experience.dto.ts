@@ -1,5 +1,5 @@
-import { IsNotEmpty, IsNumber, IsString, IsInt, IsDateString, IsJSON, Min, IsOptional } from 'class-validator';
-import { Type } from 'class-transformer'; // <-- ¡IMPORTAR ESTO!
+import { IsNotEmpty, IsNumber, IsString, IsInt, IsDateString, IsJSON, Min, IsOptional, IsArray, ArrayMinSize } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateExperienceDto {
   @IsNotEmpty()
@@ -11,13 +11,13 @@ export class CreateExperienceDto {
   description: string;
 
   @IsNotEmpty()
-  @Type(() => Number) // <-- CONVERTIR STRING A NUMBER
+  @Type(() => Number)
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'El precio debe ser un número con máximo 2 decimales.' })
   @Min(0, { message: 'El precio no puede ser negativo.' })
   price: number;
 
   @IsNotEmpty()
-  @Type(() => Number) // <-- CONVERTIR STRING A NUMBER
+  @Type(() => Number)
   @IsInt({ message: 'La capacidad debe ser un número entero.' })
   @Min(1, { message: 'La capacidad mínima es de 1 persona.' })
   capacity: number;
@@ -30,14 +30,19 @@ export class CreateExperienceDto {
   @IsDateString()
   endAt: string;
 
-  // location ahora es obligatorio, pero la validación JSON falló por el input 'xd'
+  // 1. CAMPO LOCATION (JSON String)
+  // Se sigue validando como JSON string ya que es la forma en que se envía desde el formulario
   @IsNotEmpty({ message: 'La ubicación es obligatoria.' })
   @IsJSON({ message: 'El formato de ubicación debe ser un JSON válido.' })
   location: string;
 
-  // ⚠️ QUITAR PHOTOS DE AQUÍ: Se manejará en el controlador como archivo.
-  // Pero lo dejamos como Optional si el servicio lo necesita. 
-  // No debe llevar @IsJSON() ni @IsNotEmpty() si es un archivo.
-  @IsOptional()
-  photos: string; // Se llenará en el controlador con las URLs.
+  // 2. CAMPO PHOTOS (URLs)
+  // Este campo lo llenamos en el controlador con un array de URLs (string[]). 
+  // No debe ser IsNotEmpty porque el archivo llega por UploadedFiles.
+  // Pero debe ser un array con al menos un elemento si quieres que sea obligatorio.
+  @IsOptional() // Lo dejamos opcional ya que el controlador lo llena
+  @IsArray() // Esperamos un array de strings (URLs)
+  @ArrayMinSize(1, { message: 'Debes incluir al menos una foto para la experiencia.' })
+  @IsString({ each: true }) // Cada elemento del array debe ser un string (la URL)
+  photos: string[]; // <-- Cambiamos el tipo de 'string' a 'string[]'
 }

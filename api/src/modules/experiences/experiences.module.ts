@@ -1,18 +1,22 @@
 import { Module } from '@nestjs/common';
+import { MulterModule } from '@nestjs/platform-express'; // <--- IMPORTAR ESTO
 import { ExperiencesController } from './experiences.controller';
 import { ExperiencesService } from './experiences.service';
 import { PrismaService } from '../../infra/prisma.service';
-import { UsersModule } from '../users/users.module'; // Necesario para buscar el ProviderId
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
-    UsersModule, // Importamos UsersModule para poder usar UsersService
+    UsersModule,
+    // 🔑 CONFIGURACIÓN DE MULTER: Aquí definimos dónde se guardan los archivos
+    MulterModule.register({ 
+        dest: './uploads', // Guarda los archivos temporalmente en la carpeta 'uploads'
+    }),
   ],
   controllers: [ExperiencesController],
   providers: [
     ExperiencesService, 
-    PrismaService // Necesario para la conexión a la base de datos
+    PrismaService
   ],
-  // Nota: Si otros módulos necesitan usar ExperiencesService, debes añadir exports: [ExperiencesService]
 })
-export class ExperiencesModule {} // 🔑 La palabra clave 'export' es crucial aquí
+export class ExperiencesModule {}

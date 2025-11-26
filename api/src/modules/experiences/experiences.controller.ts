@@ -5,61 +5,51 @@ import { CreateExperienceDto } from '../auth/dto/create-experience.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('experiences')
-@UseGuards(AuthGuard('jwt')) // 🛡️ Protege todos los endpoints de este controlador
+@UseGuards(AuthGuard('jwt'))
 export class ExperiencesController {
     constructor(private readonly experiencesService: ExperiencesService) { }
 
     @Post() // POST /experiences
     @UseInterceptors(
-        // Configurar multer para que espere múltiples archivos del campo 'photos'
-        // El límite de 10 es un ejemplo; ajusta la configuración de almacenamiento real
-        FilesInterceptor('photos', 10, {
-            // Opcional: puedes añadir opciones de almacenamiento, destino, etc., aquí.
-            // Por ahora, usaremos el almacenamiento predeterminado en memoria o temporal.
-        })
+        // Usamos FilesInterceptor para múltiples archivos, nombrados 'photos'
+        FilesInterceptor('photos', 10) 
     )
-
     async create(
-    @Body() createExperienceDto: CreateExperienceDto,
-    @Req() req: any, // Usamos 'any' defensivamente para asegurar el acceso a req.user
-    @UploadedFiles() photos: Express.Multer.File[]
-  ) {
-    const user = req.user; // El objeto resuelto por Passport
+        @Body() createExperienceDto: CreateExperienceDto,
+        @Req() req: any, // Aquí se inyecta el usuario
+        @UploadedFiles() photos: Express.Multer.File[] // Aquí se inyectan los archivos
+    ) {
+        const user = req.user; 
+        
+        // 1. COMPROBACIONES CRÍTICAS DE SEGURIDAD Y TIPOS (Ya definidas)
+        if (!user || !user.userId || typeof user.userId !== 'string') {
+            throw new ForbiddenException('Error de Seguridad: Token no resuelto o inválido.');
+        }
+        if (user.role !== 'PROVIDER') {
+            throw new ForbiddenException('Acceso denegado: Solo los proveedores pueden crear experiencias.');
+        } 
 
-    // 1. **COMPROBACIÓN DE ROL Y EXISTENCIA DEL ID** (CRÍTICO)
-    // --- PUNTO DE CONTROL 1: Existencia del Usuario (Token Válido) ---
-    // Si no hay objeto de usuario, el guard JWT falló o el token era malo.
-    if (!user) {
-        throw new ForbiddenException('Error de Seguridad: Token no resuelto o inválido. No se encontró usuario en la solicitud.');
+        const userId = user.userId;
+        
+        // 2. OBTENER ProviderId
+        const providerId = await this.experiencesService.findProviderIdByUserId(userId);
+        
+        // 3. PROCESAMIENTO DE FOTOS Y CORRECCIÓN DE JSON
+        // Convertimos el array de archivos a un array de URLs simuladas (string[])
+        const photoUrls = photos.map(file => {
+            // Nota: En producción, aquí harías la subida real a S3 y obtendrías la URL pública.
+            return `http://storage.ubitur.com/experiences/${file.filename || file.originalname}`;
+        });
+        
+        // 4. CREAR DTO FINAL
+        const finalDto = {
+            ...createExperienceDto,
+            // 🔑 CORRECCIÓN: Pasar el ARRAY DE STRINGS (JSON nativo) directamente.
+            photos: photoUrls, 
+            // location: ya debe ser un string JSON válido gracias a class-transformer.
+        }
+
+        // 5. Crear la experiencia
+        return this.experiencesService.create(finalDto, providerId);
     }
-
-    // --- PUNTO DE CONTROL 2: Tipo de ID (Verificación de String/UUID) ---
-    // Si el ID no existe o no es un string (UUID), la inyección falló.
-    if (!user.userId || typeof user.userId !== 'string') {
-        throw new ForbiddenException('Error de Tipo: El ID de usuario no es válido (null/undefined/no-string)xdxxdxd.');
-    }
-
-    // --- PUNTO DE CONTROL 3: Comprobación de Rol (Proveedor) ---
-    // Verifica si el rol es el correcto.
-    if (user.role !== 'PROVIDER') {
-        throw new ForbiddenException('Acceso denegado: Solo los proveedores pueden crear experiencias.');
-    } 
-
-    const userId = user.userId; // Extraemos el ID, que sabemos que es un string
-
-    // 2. Obtener el providerId (Buscando en la BD con el userId comprobado)
-    const providerId = await this.experiencesService.findProviderIdByUserId(userId);
-    
-    // ... (El resto de la lógica de fotos y DTO, que ya es correcta)
-    
-    // 3. Procesar las URLs de las fotos
-    const photoUrls = photos.map(file => `http://storage.ubitur.com/${file.originalname}`);
-    const finalDto = {
-        ...createExperienceDto,
-        photos: JSON.stringify(photoUrls),
-    }
-
-    // 4. Crear la experiencia
-    return this.experiencesService.create(finalDto, providerId);
-  }
 }
