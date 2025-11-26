@@ -4,6 +4,7 @@
  */
 const PROTECTED_PATHS = [
     'dashboard.html',
+    'createExperience.html'
 ];
 
 /**

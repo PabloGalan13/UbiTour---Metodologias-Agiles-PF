@@ -5,19 +5,25 @@ import { CreateExperienceDto } from '../auth/dto/create-experience.dto';
 
 @Injectable()
 export class ExperiencesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
-  // Nuevo método para encontrar el ID de la tabla Provider a partir del ID del usuario
   async findProviderIdByUserId(userId: string): Promise<string> {
-    const provider = await this.prisma.provider.findUnique({
-      where: { userId: userId },
+
+    // CAMBIAR findUnique POR findFirst
+    const provider = await this.prisma.provider.findFirst({
+      where: { userId: userId }, // Buscar el primer registro donde userId coincida
       select: { id: true, kycStatus: true }
     });
 
     if (!provider) {
-      throw new NotFoundException('Usuario no registrado como proveedor.');
+      // Si el usuario existe, pero no tiene entrada en la tabla Provider
+      throw new NotFoundException('Acceso denegado: El usuario no ha completado el registro de proveedor.');
     }
-    // Opcional: Si el kycStatus es importante, puedes validar aquí (ej. 'unverified')
+
+    // Opcional: validación del estado
+    if (provider.kycStatus !== 'unverified' && provider.kycStatus !== 'verified') {
+      // Podrías añadir más lógica aquí si el estado "unverified" debe impedir la creación.
+    }
 
     return provider.id;
   }
