@@ -1,80 +1,103 @@
-// Array global para almacenar todos los archivos seleccionados de forma incremental
+// ----------------------------------------------------------------
+// 1. LÓGICA DE FOTOS (SUBIDA INCREMENTAL)
+// ----------------------------------------------------------------
 const uploadedFiles = [];
 
-/**
- * Función que crea el elemento HTML de previsualización para una imagen.
- * Incluye un botón para eliminar la imagen del array.
- */
 function createPreviewElement(file, index) {
     const reader = new FileReader();
     const previewContainer = document.getElementById('photos-preview');
     
-    // Crear el wrapper principal con posición relativa para el botón de cerrar
     const elementWrapper = document.createElement('div');
     elementWrapper.className = 'relative w-24 h-24 rounded-lg overflow-hidden shadow-md border border-gray-200';
     elementWrapper.setAttribute('data-index', index);
 
     reader.onload = (e) => {
-        // Elemento de imagen
         const img = document.createElement('img');
         img.src = e.target.result;
         img.className = 'w-full h-full object-cover';
         elementWrapper.appendChild(img);
 
-        // Botón de eliminar
         const deleteButton = document.createElement('button');
-        deleteButton.innerHTML = '×'; // Símbolo de multiplicación
+        deleteButton.innerHTML = '×'; 
         deleteButton.className = 'absolute top-0 right-0 bg-red-500 text-white w-6 h-6 flex items-center justify-center text-xs font-bold rounded-bl-lg transition duration-150 opacity-90 hover:opacity-100';
         deleteButton.onclick = (event) => {
             event.preventDefault();
-            // Lógica para eliminar del array y re-renderizar
             uploadedFiles.splice(index, 1);
             renderPreviews();
         };
         elementWrapper.appendChild(deleteButton);
-        
         previewContainer.appendChild(elementWrapper);
     };
-
     reader.readAsDataURL(file);
 }
 
-/**
- * Renderiza todas las miniaturas en el contenedor desde el array global `uploadedFiles`.
- */
 function renderPreviews() {
     const previewContainer = document.getElementById('photos-preview');
-    previewContainer.innerHTML = ''; // Limpiar el contenedor antes de renderizar
-
-    // Recorrer el array global y crear los elementos
+    previewContainer.innerHTML = '';
     uploadedFiles.forEach((file, index) => {
         createPreviewElement(file, index);
     });
 }
 
-
-/**
- * Maneja la selección de archivos de forma INCREMENTAL.
- */
 function handleFileSelect(event) {
     const files = event.target.files;
     if (!files) return;
 
-    // 1. Añadir los nuevos archivos al array global
     for (const file of files) {
         if (file.type.startsWith('image/')) {
             uploadedFiles.push(file);
         }
     }
-
-    // 2. Renderizar el array completo
     renderPreviews();
-
-    // 3. Resetear el campo input para permitir la selección incremental (CRÍTICO)
-    // Esto evita que la nueva selección sustituya a la anterior en el objeto FileList nativo.
     event.target.value = null; 
 }
 
+// ----------------------------------------------------------------
+// 2. LÓGICA DE MAPA (LEAFLET)
+// ----------------------------------------------------------------
+let map;
+let marker;
+
+function initLeafletMap() {
+    // Obregón
+    const defaultLat = 27.486389; 
+    const defaultLng = -109.940833;
+
+    map = L.map('map').setView([defaultLat, defaultLng], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    marker = L.marker([defaultLat, defaultLng], {
+        draggable: true
+    }).addTo(map);
+
+    marker.on('dragend', (event) => {
+        const position = marker.getLatLng();
+        updateMarkerPosition(position.lat, position.lng);
+    });
+
+    map.on('click', (e) => {
+        marker.setLatLng(e.latlng);
+        updateMarkerPosition(e.latlng.lat, e.latlng.lng);
+    });
+
+    updateMarkerPosition(defaultLat, defaultLng);
+}
+
+function updateMarkerPosition(lat, lng) {
+    document.getElementById('latitude').value = lat;
+    document.getElementById('longitude').value = lng;
+    document.getElementById('coordDisplayLat').textContent = lat.toFixed(5);
+    document.getElementById('coordDisplayLng').textContent = lng.toFixed(5);
+}
+
+
+// ----------------------------------------------------------------
+// 3. LÓGICA PRINCIPAL Y ENVÍO (CON BOTÓN MANUAL)
+// ----------------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem("access_token"); 
@@ -82,70 +105,116 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultElement = document.getElementById('form-result');
     const photosInput = document.getElementById('photos');
     
-    // 🔑 ENLACE DE PREVISUALIZACIÓN INCREMENTAL
+    // Elementos del Modal
+    const modal = document.getElementById('successModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    // INICIAR MAPA
+    initLeafletMap();
+
+    // ENLACE DE FOTOS
     if (photosInput) {
         photosInput.addEventListener('change', handleFileSelect);
     }
     
+    // EVENTO PARA CERRAR EL MODAL MANUALMENTE
+    if (closeModalBtn && modal) {
+        closeModalBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        });
+    }
     
     if (form) {
         form.addEventListener('submit', async function (e) {
             e.preventDefault();
-            resultElement.innerHTML = '<p class="text-gray-500">Enviando datos...</p>';
+            
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerText;
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Guardando...";
+            resultElement.innerHTML = ''; 
 
-            // 1. CREAR FORMDATA A PARTIR DEL FORMULARIO
             const formData = new FormData(form);
 
-            // 2. ELIMINAR EL CAMPO DE FOTOS DEL FORMULARIO
-            // La versión nativa contiene una referencia al input, lo cual es incorrecto en este flujo.
-            formData.delete('photos'); 
+            const latitude = parseFloat(document.getElementById('latitude').value);
+            const longitude = parseFloat(document.getElementById('longitude').value);
             
-            // 3. ADJUNTAR LOS ARCHIVOS DEL ARRAY GLOBAL UNO POR UNO (CRÍTICO)
-            uploadedFiles.forEach(file => {
-                // El nombre 'photos' debe coincidir con FilesInterceptor('photos', ...) en el backend
-                formData.append('photos', file, file.name); 
-            });
+            formData.set('location', JSON.stringify({
+                lat: latitude,
+                lng: longitude,
+                address: "Ubicación seleccionada en mapa" 
+            }));
+            
+            formData.delete('latitude');
+            formData.delete('longitude');
+
+            formData.delete('photos'); 
+            if (uploadedFiles.length > 0) {
+                uploadedFiles.forEach(file => {
+                    formData.append('photos', file, file.name); 
+                });
+            }
 
             try {
-                // 4. Enviar petición POST al backend
                 const res = await fetch('http://localhost:3000/experiences', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}` 
-                        // No Content-Type; el navegador lo hace por FormData.
                     },
                     body: formData, 
                 });
 
-                // 5. Manejar la respuesta
                 if (res.ok) {
-                    // Limpiar array y previsualización
-                    uploadedFiles.length = 0; // Vacía el array
+                    const experience = await res.json();
+                    
+                    // --- MOSTRAR MODAL (SIN TIMER) ---
+                    const modalMessage = document.getElementById('modalMessage');
+
+                    if (modalMessage) {
+                        modalMessage.textContent = `¡La experiencia "${experience.title}" ha sido publicada exitosamente!`;
+                    }
+
+                    if (modal) {
+                        modal.classList.remove('hidden');
+                        modal.classList.add('flex'); 
+                    }
+
+                    // Limpiar Formulario y Estado (Detrás del modal)
+                    uploadedFiles.length = 0; 
                     document.getElementById('photos-preview').innerHTML = ''; 
+                    resultElement.innerHTML = ''; 
                     form.reset();
                     
-                    const experience = await res.json();
-                    resultElement.innerHTML = `
-                        <p class="text-green-600 font-semibold">
-                            ✅ ¡Experiencia "${experience.title}" registrada con éxito!
-                        </p>
-                    `;
+                    // Resetear mapa
+                    const defaultLat = 27.486389;
+                    const defaultLng = -109.940833;
+                    if (marker && map) {
+                        marker.setLatLng([defaultLat, defaultLng]);
+                        map.setView([defaultLat, defaultLng], 13);
+                        updateMarkerPosition(defaultLat, defaultLng);
+                    }
+
                 } else {
                     const error = await res.json();
                     let message = 'Error: No se pudo guardar la experiencia.';
 
                     if (error.message && Array.isArray(error.message)) {
-                        message = '❌ Faltan campos obligatorios o son inválidos: <ul class="list-disc list-inside text-left mx-auto max-w-xs mt-2">' + 
+                        message = 'Faltan campos obligatorios o son inválidos: <ul class="list-disc list-inside text-left mx-auto max-w-xs mt-2">' + 
                                    error.message.map(m => `<li>${m}</li>`).join('') + 
                                    '</ul>';
                     } else if (error.message) {
-                         message = `❌ Error del servidor: ${error.message}`;
+                         message = `Error del servidor: ${error.message}`;
                     }
 
                     resultElement.innerHTML = `<p class="text-red-600">${message}</p>`;
                 }
             } catch (err) {
-                resultElement.innerHTML = '<p class="text-red-600">❌ Error de conexión con el API.</p>';
+                resultElement.innerHTML = '<p class="text-red-600">Error de conexión con el API.</p>';
+                console.error(err);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalBtnText;
             }
         });
     }

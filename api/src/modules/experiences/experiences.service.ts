@@ -7,43 +7,42 @@ import { CreateExperienceDto } from '../auth/dto/create-experience.dto';
 export class ExperiencesService {
   constructor(private readonly prisma: PrismaService) { }
 
+  // Nuevo método para encontrar el ID de la tabla Provider a partir del ID del usuario
   async findProviderIdByUserId(userId: string): Promise<string> {
-
-    // CAMBIAR findUnique POR findFirst
-    const provider = await this.prisma.provider.findFirst({
-      where: { userId: userId }, // Buscar el primer registro donde userId coincida
+    const provider = await this.prisma.provider.findUnique({
+      where: { userId: userId },
       select: { id: true, kycStatus: true }
     });
 
     if (!provider) {
-      // Si el usuario existe, pero no tiene entrada en la tabla Provider
-      throw new NotFoundException('Acceso denegado: El usuario no ha completado el registro de proveedor.');
+      throw new NotFoundException('Usuario no registrado como proveedor.');
     }
-
-    // Opcional: validación del estado
-    if (provider.kycStatus !== 'unverified' && provider.kycStatus !== 'verified') {
-      // Podrías añadir más lógica aquí si el estado "unverified" debe impedir la creación.
-    }
+    // Opcional: Si el kycStatus es importante, puedes validar aquí (ej. 'unverified')
 
     return provider.id;
   }
 
   // Método para crear la experiencia
   async create(dto: CreateExperienceDto, providerId: string) {
+    // 🔑 SOLUCIÓN: Renombrar 'location' a 'locationString' al desestructurar
+    const { location: locationString, photos, ...rest } = dto;
+
     return this.prisma.experience.create({
       data: {
         providerId: providerId,
-        title: dto.title,
-        description: dto.description,
-        price: dto.price, // Prisma maneja la conversión de Number a Decimal
-        capacity: dto.capacity,
-        startAt: new Date(dto.startAt),
-        endAt: new Date(dto.endAt),
-        location: dto.location,
-        photos: dto.photos,
-        isActive: true, // Por defecto
+
+        // Ahora usamos la variable renombrada, que TypeScript sabe que es un string
+        location: JSON.parse(locationString),
+
+        photos: photos,
+        title: rest.title,
+        description: rest.description,
+        price: rest.price,
+        capacity: rest.capacity,
+        startAt: new Date(rest.startAt),
+        endAt: new Date(rest.endAt),
+        isActive: true,
       },
-      // Selecciona solo los campos de confirmación
       select: { id: true, title: true, providerId: true }
     });
   }
