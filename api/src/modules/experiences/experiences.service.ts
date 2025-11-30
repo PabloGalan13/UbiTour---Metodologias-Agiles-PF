@@ -1,71 +1,49 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../infra/prisma.service';
-import { FilterExperienceDto } from './dto/filter-experience.dto';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../infra/prisma.service'; // Asumiendo esta ruta
+
+import { CreateExperienceDto } from '../auth/dto/create-experience.dto';
 
 @Injectable()
 export class ExperiencesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
-  findAll() {
-    return this.prisma.experience.findMany({
-      where: { isActive: true },
-      include: {
-        provider: {
-          select: {
-            user: { select: { name: true } },
-          },
-        },
-      },
+  // Nuevo método para encontrar el ID de la tabla Provider a partir del ID del usuario
+  async findProviderIdByUserId(userId: string): Promise<string> {
+    const provider = await this.prisma.provider.findUnique({
+      where: { userId: userId },
+      select: { id: true, kycStatus: true }
     });
+
+    if (!provider) {
+      throw new NotFoundException('Usuario no registrado como proveedor.');
+    }
+    // Opcional: Si el kycStatus es importante, puedes validar aquí (ej. 'unverified')
+
+    return provider.id;
   }
 
-  async filter(dto: FilterExperienceDto) {
-    const baseFilters: any = {
-      isActive: true,
-    };
+  // Método para crear la experiencia
+  async create(dto: CreateExperienceDto, providerId: string) {
+    // 🔑 SOLUCIÓN: Renombrar 'location' a 'locationString' al desestructurar
+    const { location: locationString, photos, ...rest } = dto;
 
-    if (dto.date) {
-      baseFilters.startAt = { gte: new Date(dto.date) };
-    }
+    return this.prisma.experience.create({
+      data: {
+        providerId: providerId,
 
-    if (dto.minPrice || dto.maxPrice) {
-      baseFilters.price = {};
-      if (dto.minPrice) baseFilters.price.gte = Number(dto.minPrice);
-      if (dto.maxPrice) baseFilters.price.lte = Number(dto.maxPrice);
-    }
+        // Ahora usamos la variable renombrada, que TypeScript sabe que es un string
+        location: JSON.parse(locationString),
 
-    if (!dto.location) {
-      return this.prisma.experience.findMany({
-        where: baseFilters,
-        include: {
-          provider: { select: { user: { select: { name: true } } } },
-        },
-      });
-    }
-
-    const sql = `
-      SELECT id
-      FROM Experience
-      WHERE isActive = 1
-      AND LOWER(JSON_UNQUOTE(JSON_EXTRACT(location, '$.city'))) LIKE LOWER(?)
-    `;
-
-    const rows: Array<{ id: string }> = await this.prisma.$queryRawUnsafe(
-      sql,
-      `%${dto.location}%`
-    );
-
-    if (rows.length === 0) return [];
-    const ids = rows.map(r => r.id);
-
-    return this.prisma.experience.findMany({
-      where: {
-        ...baseFilters,
-        id: { in: ids },
+        photos: photos,
+        title: rest.title,
+        description: rest.description,
+        price: rest.price,
+        capacity: rest.capacity,
+        startAt: new Date(rest.startAt),
+        endAt: new Date(rest.endAt),
+        isActive: true,
       },
-      include: {
-        provider: { select: { user: { select: { name: true } } } },
-      },
+      select: { id: true, title: true, providerId: true }
     });
   }
 }
