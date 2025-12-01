@@ -139,58 +139,6 @@
         <div id="results" class="experience-grid"></div>
 
     </div>
-
-    <script>
-        async function cargarExperiencias(filtros = {}) {
-            let url = "http://localhost:3000/experiences/filter?";
-
-            if (filtros.city) url += `city=${filtros.city}&`;
-            if (filtros.minPrice) url += `minPrice=${filtros.minPrice}&`;
-            if (filtros.maxPrice) url += `maxPrice=${filtros.maxPrice}&`;
-            if (filtros.date) url += `date=${filtros.date}&`;
-
-            const res = await fetch(url);
-            const data = await res.json();
-
-            mostrarExperiencias(data);
-        }
-
-        function mostrarExperiencias(lista) {
-            const cont = document.getElementById("results");
-            cont.innerHTML = "";
-
-            if (!lista.length) {
-                cont.innerHTML = `<p>No se encontraron experiencias.</p>`;
-                return;
-            }
-
-            lista.forEach(exp => {
-                const card = `
-                    <div class="card">
-                        <img src="${exp.photos[0]}" alt="">
-                        <div class="card-body">
-                            <h3>${exp.title}</h3>
-                            <p class="price">$${exp.price} / persona</p>
-                            <p>${exp.location?.city ?? ""}</p>
-                        </div>
-                    </div>
-                `;
-                cont.innerHTML += card;
-            });
-        }
-
-        document.getElementById("btnFiltrar").addEventListener("click", () => {
-            const filtros = {
-                city: document.getElementById("city").value,
-                minPrice: document.getElementById("minPrice").value,
-                maxPrice: document.getElementById("maxPrice").value,
-                date: document.getElementById("date").value,
-            };
-            cargarExperiencias(filtros);
-        });
-
-        cargarExperiencias();
-    </script>
-
+    <script src="./js/explore.js"></script>
 </body>
 </html>

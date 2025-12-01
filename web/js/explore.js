@@ -1,19 +1,14 @@
-async function loadExperiences() {
+async function loadExperiences(filters = {}) {
     const urlParams = new URLSearchParams();
 
-    const city = document.getElementById("city").value.trim();
-    const minPrice = document.getElementById("minPrice").value.trim();
-    const maxPrice = document.getElementById("maxPrice").value.trim();
-    const date = document.getElementById("date").value.trim();
-
-    if (city) urlParams.append("city", city); // <--- CORREGIDO
-    if (minPrice) urlParams.append("minPrice", minPrice);
-    if (maxPrice) urlParams.append("maxPrice", maxPrice);
-    if (date) urlParams.append("date", date);
+    if (filters.city) urlParams.append("city", filters.city);
+    if (filters.minPrice) urlParams.append("minPrice", filters.minPrice);
+    if (filters.maxPrice) urlParams.append("maxPrice", filters.maxPrice);
+    if (filters.date) urlParams.append("date", filters.date);
 
     let endpoint = "http://localhost:3000/experiences";
 
-    if ([city, minPrice, maxPrice, date].some(v => v !== "")) {
+    if (Array.from(urlParams).length > 0) {
         endpoint += "/filter?" + urlParams.toString();
     }
 
@@ -37,18 +32,31 @@ function renderExperiences(experiences) {
     experiences.forEach(exp => {
         const card = `
         <div class="card">
-            <img src="${exp.photos[0]}" class="card-img">
+            <img src="${exp.photos?.[0] || ''}" class="card-img">
             <div class="card-body">
                 <h3>${exp.title}</h3>
-                <p>${exp.location.city}</p>
+                <p>${exp.location?.city ?? ''}</p>
                 <p><strong>${exp.price}€ / persona</strong></p>
-                <button class="btn-details" onclick="window.location.href='experience.html?id=${exp.id}'">
-                    Ver detalles
-                </button>
+                <button class="btn-details" onclick="verDetalles('${exp.id}')">Ver detalles</button>
             </div>
         </div>`;
         container.innerHTML += card;
     });
 }
 
-window.onload = loadExperiences;
+function verDetalles(id) {
+    window.location.href = `experience.html?id=${id}`;
+}
+
+document.getElementById("btnFiltrar").addEventListener("click", () => {
+    const filters = {
+        city: document.getElementById("city").value.trim(),
+        minPrice: document.getElementById("minPrice").value.trim(),
+        maxPrice: document.getElementById("maxPrice").value.trim(),
+        date: document.getElementById("date").value.trim()
+    };
+
+    loadExperiences(filters);
+});
+
+window.onload = () => loadExperiences();
