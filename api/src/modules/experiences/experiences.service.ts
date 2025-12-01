@@ -1,7 +1,8 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException,ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../infra/prisma.service'; // Asumiendo esta ruta
 import { FilterExperienceDto } from './dto/filter-experience.dto';
 import { CreateExperienceDto } from '../auth/dto/create-experience.dto';
+import { UpdateExperienceDto } from './dto/update-experience.dto';
 
 @Injectable()
 export class ExperiencesService {
@@ -92,6 +93,65 @@ export class ExperiencesService {
     // SIN CITY → devolvemos todo lo filtrado por precio/fecha
     return this.prisma.experience.findMany({
       where: baseFilters
+    });
+  }
+
+  //Obtener experiencias del provider actual
+  async findByProvider(userId: string) {
+    const providerId = await this.findProviderIdByUserId(userId);
+
+    return this.prisma.experience.findMany({
+      where: { providerId, isActive: true },
+      orderBy: { startAt: 'asc' }
+    });
+  }
+
+  //Editar experiencia
+  async update(id: string, dto: UpdateExperienceDto, userId: string) {
+    const providerId = await this.findProviderIdByUserId(userId);
+
+    const experience = await this.prisma.experience.findUnique({
+      where: { id },
+      select: { providerId: true }
+    });
+
+    if (!experience) throw new NotFoundException('Experiencia no encontrada.');
+    if (experience.providerId !== providerId) {
+      throw new ForbiddenException('No puedes editar experiencias de otro proveedor.');
+    }
+
+    // Parsear location si viene como JSON string
+    let locationParsed = undefined;
+    if (dto.location) {
+      locationParsed = JSON.parse(dto.location);
+    }
+
+    return this.prisma.experience.update({
+      where: { id },
+      data: {
+        ...dto,
+        location: locationParsed ?? undefined,
+      }
+    });
+  }
+
+  //Eliminar experiencias
+  async delete(id: string, userId: string) {
+    const providerId = await this.findProviderIdByUserId(userId);
+
+    const experience = await this.prisma.experience.findUnique({
+      where: { id },
+      select: { providerId: true }
+    });
+
+    if (!experience) throw new NotFoundException('Experiencia no encontrada.');
+    if (experience.providerId !== providerId) {
+      throw new ForbiddenException('No puedes eliminar experiencias de otro proveedor.');
+    }
+
+    return this.prisma.experience.update({
+      where: { id },
+      data: { isActive: false }
     });
   }
 }
