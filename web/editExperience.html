@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Experiencia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50">
+<header class="p-4 bg-white shadow">
+    <a href="experienceList.html" class="text-blue-600 text-sm">← Volver</a>
+</header>
+
+<main class="max-w-xl mx-auto p-6">
+
+    <h1 class="text-2xl font-semibold mb-4">Editar Experiencia</h1>
+
+    <form id="editForm" class="space-y-4">
+
+        <input id="title" class="w-full border p-2 rounded" placeholder="Título">
+        <input id="price" type="number" class="w-full border p-2 rounded" placeholder="Precio">
+        <input id="capacity" type="number" class="w-full border p-2 rounded" placeholder="Cupo">
+
+        <input id="startAt" type="datetime-local" class="w-full border p-2 rounded">
+        <input id="endAt" type="datetime-local" class="w-full border p-2 rounded">
+
+        <textarea id="description" class="w-full border p-2 rounded" rows="4"
+                  placeholder="Descripción"></textarea>
+
+        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded">
+            Guardar Cambios
+        </button>
+
+    </form>
+
+</main>
+
+<script src="js/auth.js"></script>
+<script src="js/editExperience.js"></script>
+
+</body>
+</html>
