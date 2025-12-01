@@ -6,7 +6,7 @@ async function loadExperiences() {
     const maxPrice = document.getElementById("maxPrice").value.trim();
     const date = document.getElementById("date").value.trim();
 
-    if (city) urlParams.append("location", city);
+    if (city) urlParams.append("city", city); // <--- CORREGIDO
     if (minPrice) urlParams.append("minPrice", minPrice);
     if (maxPrice) urlParams.append("maxPrice", maxPrice);
     if (date) urlParams.append("date", date);
@@ -40,9 +40,11 @@ function renderExperiences(experiences) {
             <img src="${exp.photos[0]}" class="card-img">
             <div class="card-body">
                 <h3>${exp.title}</h3>
-                <p>${exp.location.city}, España</p>
+                <p>${exp.location.city}</p>
                 <p><strong>${exp.price}€ / persona</strong></p>
-                <button class="btn-details">Ver detalles</button>
+                <button class="btn-details" onclick="window.location.href='experience.html?id=${exp.id}'">
+                    Ver detalles
+                </button>
             </div>
         </div>`;
         container.innerHTML += card;

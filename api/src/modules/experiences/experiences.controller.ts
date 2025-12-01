@@ -1,14 +1,15 @@
-import { Controller, Post, Body, UseGuards, Req, UseInterceptors, UploadedFiles, ForbiddenException } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req, UseInterceptors, UploadedFiles, ForbiddenException,Get,Query } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ExperiencesService } from './experiences.service';
 import { CreateExperienceDto } from '../auth/dto/create-experience.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { FilterExperienceDto } from './dto/filter-experience.dto';
 
 @Controller('experiences')
-@UseGuards(AuthGuard('jwt'))
 export class ExperiencesController {
     constructor(private readonly experiencesService: ExperiencesService) { }
 
+    @UseGuards(AuthGuard('jwt'))
     @Post() // POST /experiences
     @UseInterceptors(
         // Usamos FilesInterceptor para múltiples archivos, nombrados 'photos'
@@ -56,5 +57,15 @@ export class ExperiencesController {
 
         // 5. Crear la experiencia
         return this.experiencesService.create(finalDto, providerId);
+    }
+    
+    @Get()
+    async findAll() {
+    return this.experiencesService.findAll();
+    }
+    
+    @Get('filter')
+    async filter(@Query() filters: FilterExperienceDto) {
+        return this.experiencesService.filter(filters);
     }
 }

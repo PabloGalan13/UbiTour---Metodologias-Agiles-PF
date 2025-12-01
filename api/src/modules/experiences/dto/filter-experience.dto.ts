@@ -3,7 +3,7 @@ import { IsOptional, IsString, IsNumberString } from 'class-validator';
 export class FilterExperienceDto {
   @IsOptional()
   @IsString()
-  location?: string;
+  city?: string;
 
   @IsOptional()
   @IsString()

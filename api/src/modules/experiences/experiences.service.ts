@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../infra/prisma.service'; // Asumiendo esta ruta
-
+import { FilterExperienceDto } from './dto/filter-experience.dto';
 import { CreateExperienceDto } from '../auth/dto/create-experience.dto';
 
 @Injectable()
@@ -26,14 +26,12 @@ export class ExperiencesService {
   async create(dto: CreateExperienceDto, providerId: string) {
     // 🔑 SOLUCIÓN: Renombrar 'location' a 'locationString' al desestructurar
     const { location: locationString, photos, ...rest } = dto;
+    const parsedLocation = JSON.parse(locationString);
 
     return this.prisma.experience.create({
       data: {
         providerId: providerId,
-
-        // Ahora usamos la variable renombrada, que TypeScript sabe que es un string
-        location: JSON.parse(locationString),
-
+        location: parsedLocation,
         photos: photos,
         title: rest.title,
         description: rest.description,
@@ -44,6 +42,56 @@ export class ExperiencesService {
         isActive: true,
       },
       select: { id: true, title: true, providerId: true }
+    });
+  }
+  //Obtener todas las experiencias
+  async findAll() {
+    return this.prisma.experience.findMany({
+      where: { isActive: true },
+      orderBy: { startAt: 'asc' },
+    });
+  }
+  //Filtros de las experiencias
+  async filter(dto: FilterExperienceDto) {
+    const baseFilters: any = {
+      isActive: true,
+    };
+
+    // FILTRO POR FECHA
+    if (dto.date) {
+      baseFilters.startAt = { gte: new Date(dto.date) };
+    }
+
+    // FILTRO POR PRECIO
+    if (dto.city) {
+      const sql = `
+        SELECT id
+        FROM Experience
+        WHERE isActive = 1
+        AND LOWER(JSON_UNQUOTE(JSON_EXTRACT(location, '$.city')))
+          LIKE LOWER(?)
+      `;
+
+      const rows: Array<{ id: string }> = await this.prisma.$queryRawUnsafe(
+        sql,
+        `%${dto.city}%`
+      );
+
+      if (rows.length === 0) return [];
+
+      const ids = rows.map(r => r.id);
+
+      return this.prisma.experience.findMany({
+        where: {
+          id: { in: ids },
+          ...baseFilters
+        }
+      });
+    }
+
+    // SIN CITY → devolvemos todo lo filtrado por precio/fecha
+    return this.prisma.experience.findMany({
+      where: baseFilters
     });
   }
 }

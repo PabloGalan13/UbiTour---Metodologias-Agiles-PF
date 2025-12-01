@@ -129,7 +129,7 @@
         <h1>Explorar experiencias</h1>
 
         <div class="filters">
-            <input type="text" id="location" placeholder="Ciudad">
+            <input type="text" id="city" placeholder="Ciudad">
             <input type="number" id="minPrice" placeholder="Precio mínimo">
             <input type="number" id="maxPrice" placeholder="Precio máximo">
             <input type="date" id="date">
@@ -144,7 +144,7 @@
         async function cargarExperiencias(filtros = {}) {
             let url = "http://localhost:3000/experiences/filter?";
 
-            if (filtros.location) url += `location=${filtros.location}&`;
+            if (filtros.city) url += `city=${filtros.city}&`;
             if (filtros.minPrice) url += `minPrice=${filtros.minPrice}&`;
             if (filtros.maxPrice) url += `maxPrice=${filtros.maxPrice}&`;
             if (filtros.date) url += `date=${filtros.date}&`;
@@ -181,7 +181,7 @@
 
         document.getElementById("btnFiltrar").addEventListener("click", () => {
             const filtros = {
-                location: document.getElementById("location").value,
+                city: document.getElementById("city").value,
                 minPrice: document.getElementById("minPrice").value,
                 maxPrice: document.getElementById("maxPrice").value,
                 date: document.getElementById("date").value,
@@ -193,5 +193,4 @@
     </script>
 
 </body>
-    <script src="./js/explore.js"></script>
 </html>

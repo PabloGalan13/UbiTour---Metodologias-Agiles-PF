@@ -1,4 +1,29 @@
 // ----------------------------------------------------------------
+// 0. Reverse Geocoding - Obtener ciudad desde lat/lng (FRONTEND)
+// ----------------------------------------------------------------
+async function obtenerCiudad(lat, lng) {
+    try {
+        const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=es`,
+            {
+                headers: {
+                    "User-Agent": "UbiTour (educational project)",
+                }
+            }
+        );
+        const data = await res.json();
+
+        return data.address.city 
+            || data.address.town 
+            || data.address.village 
+            || "Ciudad desconocida";
+
+    } catch (e) {
+        console.error("Error obteniendo ciudad:", e);
+        return "Ciudad desconocida";
+    }
+}
+// ----------------------------------------------------------------
 // 1. LÓGICA DE FOTOS (SUBIDA INCREMENTAL)
 // ----------------------------------------------------------------
 const uploadedFiles = [];
@@ -140,10 +165,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const latitude = parseFloat(document.getElementById('latitude').value);
             const longitude = parseFloat(document.getElementById('longitude').value);
             
+            const city = await obtenerCiudad(latitude, longitude);
+
+            // Guardar location con ciudad incluida
             formData.set('location', JSON.stringify({
                 lat: latitude,
                 lng: longitude,
-                address: "Ubicación seleccionada en mapa" 
+                city: city
             }));
             
             formData.delete('latitude');
