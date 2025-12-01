@@ -58,14 +58,18 @@ export class ExperiencesController {
         // 5. Crear la experiencia
         return this.experiencesService.create(finalDto, providerId);
     }
-    
+    //Obtener todas experiencias
     @Get()
     async findAll() {
     return this.experiencesService.findAll();
     }
-    
+    //Obtener experiencias por filtro
     @Get('filter')
     async filter(@Query() filters: FilterExperienceDto) {
         return this.experiencesService.filter(filters);
     }
+
+    
+
+
 }
