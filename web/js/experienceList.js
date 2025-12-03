@@ -4,19 +4,20 @@ if (!token) {
     window.location.href = "login.html";
 }
 
+let experienceToDelete = null;
+
+
 async function loadExperiences() {
     const container = document.getElementById("experienceList");
 
     try {
-        console.log("TOKEN:", token);
-
         const res = await fetch("http://localhost:3000/experiences/my", {
             headers: {
                 "Authorization": "Bearer " + token
             }
         });
 
-        if (!res.ok) throw new Error("Error en la petición");
+        if (!res.ok) throw new Error("Error al obtener experiencias");
 
         const experiences = await res.json();
 
@@ -33,8 +34,7 @@ async function loadExperiences() {
                 <div>
                     <h2 class="text-lg font-semibold text-gray-800">${exp.title}</h2>
                     <p class="text-gray-600 text-sm">
-                        ${new Date(exp.startAt).toLocaleDateString()} — 
-                        $${exp.price}
+                        ${new Date(exp.startAt).toLocaleDateString()} — $${exp.price}
                     </p>
                 </div>
 
@@ -45,7 +45,7 @@ async function loadExperiences() {
                         ✏️ Editar
                     </a>
 
-                    <button onclick="deleteExperience('${exp.id}')"
+                    <button onclick="openDeleteModal('${exp.id}')"
                         class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium">
                         🗑️ Eliminar
                     </button>
@@ -55,33 +55,64 @@ async function loadExperiences() {
         `).join("");
 
     } catch (err) {
+        console.error(err);
         container.innerHTML = `
             <p class="text-red-500">Error al cargar tus experiencias.</p>
         `;
-        console.error(err);
     }
 }
 
-async function deleteExperience(id) {
-    const confirmDelete = confirm("¿Seguro que deseas eliminar esta experiencia?");
-    if (!confirmDelete) return;
 
+function openDeleteModal(id) {
+    experienceToDelete = id;
+    document.getElementById("confirmDeleteModal").classList.remove("hidden");
+}
+
+document.getElementById("cancelDeleteBtn").onclick = () => {
+    document.getElementById("confirmDeleteModal").classList.add("hidden");
+    experienceToDelete = null;
+};
+
+document.getElementById("confirmDeleteBtn").onclick = async () => {
     try {
-        const res = await fetch(`http://localhost:3000/experiences/${id}`, {
+        const res = await fetch(`http://localhost:3000/experiences/${experienceToDelete}`, {
             method: "DELETE",
             headers: {
                 "Authorization": "Bearer " + token
             }
         });
 
-        if (!res.ok) throw new Error();
+        document.getElementById("confirmDeleteModal").classList.add("hidden");
 
-        alert("Experiencia eliminada correctamente.");
-        loadExperiences();
+        if (!res.ok) {
+            showDeleteError("No se pudo eliminar la experiencia. Inténtalo más tarde.");
+            return;
+        }
 
-    } catch {
-        alert("No se pudo eliminar la experiencia.");
+        showDeleteSuccess();
+
+    } catch (err) {
+        console.error(err);
+        showDeleteError("Error de conexión con el servidor.");
     }
+};
+
+function showDeleteError(msg) {
+    document.getElementById("deleteErrorMessage").innerText = msg;
+    document.getElementById("deleteErrorModal").classList.remove("hidden");
 }
+
+document.getElementById("closeErrorDeleteBtn").onclick = () => {
+    document.getElementById("deleteErrorModal").classList.add("hidden");
+};
+
+function showDeleteSuccess() {
+    document.getElementById("deleteSuccessModal").classList.remove("hidden");
+}
+
+document.getElementById("closeSuccessDeleteBtn").onclick = () => {
+    document.getElementById("deleteSuccessModal").classList.add("hidden");
+    loadExperiences();
+};
 
 loadExperiences();

@@ -4,40 +4,114 @@
 <head>
     <meta charset="UTF-8">
     <title>Editar Experiencia</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        #editSuccessModal {
+            z-index: 9999 !important;
+            position: fixed !important;
+        }
+        .leaflet-container,
+        .leaflet-pane,
+        .leaflet-top,
+        .leaflet-bottom {
+            z-index: 1 !important;
+        }
+    </style>
 </head>
 
 <body class="bg-gray-50">
-<header class="p-4 bg-white shadow">
-    <a href="experienceList.html" class="text-blue-600 text-sm">← Volver</a>
-</header>
+    <header class="p-4 bg-white shadow">
+        <a href="experienceList.html" class="text-blue-600 text-sm">← Volver</a>
+    </header>
 
-<main class="max-w-xl mx-auto p-6">
+    <main class="max-w-xl mx-auto p-6">
 
-    <h1 class="text-2xl font-semibold mb-4">Editar Experiencia</h1>
+        <h1 class="text-2xl font-semibold mb-4">Editar Experiencia</h1>
 
-    <form id="editForm" class="space-y-4">
+        <form id="editForm" class="space-y-4">
 
-        <input id="title" class="w-full border p-2 rounded" placeholder="Título">
-        <input id="price" type="number" class="w-full border p-2 rounded" placeholder="Precio">
-        <input id="capacity" type="number" class="w-full border p-2 rounded" placeholder="Cupo">
+            <input id="title" class="w-full border p-2 rounded" placeholder="Título">
+            <input id="price" type="number" class="w-full border p-2 rounded" placeholder="Precio">
+            <input id="capacity" type="number" class="w-full border p-2 rounded" placeholder="Cupo">
 
-        <input id="startAt" type="datetime-local" class="w-full border p-2 rounded">
-        <input id="endAt" type="datetime-local" class="w-full border p-2 rounded">
+            <input id="startAt" type="datetime-local" class="w-full border p-2 rounded">
+            <input id="endAt" type="datetime-local" class="w-full border p-2 rounded">
 
-        <textarea id="description" class="w-full border p-2 rounded" rows="4"
-                  placeholder="Descripción"></textarea>
+            <textarea id="description" class="w-full border p-2 rounded" rows="4"
+                    placeholder="Descripción"></textarea>
 
-        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded">
-            Guardar Cambios
-        </button>
+            <h3>Ubicación Geográfica</h3>
 
-    </form>
+            <div id="map" style="height: 350px; border-radius: 10px;"></div>
 
-</main>
+            <p>
+                Coordenadas seleccionadas:
+                <span id="coords"></span>
+            </p>
 
-<script src="js/auth.js"></script>
-<script src="js/editExperience.js"></script>
+            <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded">
+                Guardar Cambios
+            </button>
 
-</body>
+        </form>
+
+    </main>
+
+    <div id="editSuccessModal"
+        class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+
+        <div class="bg-white p-8 rounded-xl shadow-xl text-center w-80 animation-scale">
+
+            <div class="mx-auto h-16 w-16 flex items-center justify-center bg-green-100 rounded-full mb-4">
+                <svg class="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                        d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+
+            <h2 class="text-xl font-bold mb-2">¡Cambios Guardados!</h2>
+            <p class="text-gray-600 mb-6">La experiencia fue actualizada correctamente.</p>
+
+            <button id="closeEditModal"
+                    class="w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold">
+                Aceptar
+            </button>
+        </div>
+
+    </div>
+
+    <div id="editErrorModal"
+     class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+
+        <div class="bg-white p-8 rounded-xl shadow-xl text-center w-80">
+
+            <div class="mx-auto h-16 w-16 flex items-center justify-center bg-red-100 rounded-full mb-4">
+                <svg class="h-10 w-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                        d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </div>
+
+            <h2 class="text-xl font-bold mb-2 text-red-600">Error</h2>
+
+            <p id="errorMessage" class="text-gray-600 mb-6">
+                Ocurrió un error inesperado.
+            </p>
+
+            <button id="closeErrorModal"
+                    class="w-full py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold">
+                Regresar
+            </button>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/editExperience.js"></script>
+
+    </body>
 </html>
