@@ -4,20 +4,40 @@ const expId = urlParams.get("id");
 
 let map, marker;
 let selectedLat, selectedLng;
+if (!token) window.location.href = "login.html";
+if (!expId) window.location.href = "experienceList.html";
 
-if (!expId) {
-    alert("ID no válido");
-    window.location.href = "experienceList.html";
+
+async function obtenerCiudad(lat, lng) {
+    try {
+        const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=es`,
+            { headers: { "User-Agent": "UbiTour" } }
+        );
+
+        const data = await res.json();
+
+        return (
+            data.address.city ||
+            data.address.town ||
+            data.address.village ||
+            data.address.state ||
+            "Ciudad desconocida"
+        );
+
+    } catch {
+        return "Ciudad desconocida";
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
     loadExperience();
 
-    document.getElementById("closeEditModal").onclick = () => {
+    document.getElementById("successBtn").onclick = () => {
         window.location.href = "experienceList.html";
     };
 
-    document.getElementById("closeErrorModal").onclick = () => {
+    document.getElementById("errorBtn").onclick = () => {
         window.location.href = "experienceList.html";
     };
 });
@@ -43,15 +63,11 @@ async function loadExperience() {
     document.getElementById("startAt").value = exp.startAt.slice(0, 16);
     document.getElementById("endAt").value = exp.endAt.slice(0, 16);
 
-    let lat = exp.location?.lat ?? 27.48639;
-    let lng = exp.location?.lng ?? -109.94083;
+    selectedLat = exp.location?.lat ?? 27.48639;
+    selectedLng = exp.location?.lng ?? -109.94083;
 
-    selectedLat = lat;
-    selectedLng = lng;
-
-    initMap(lat, lng);
+    initMap(selectedLat, selectedLng);
 }
-
 
 function initMap(lat, lng) {
     map = L.map("map").setView([lat, lng], 14);
@@ -68,7 +84,7 @@ function initMap(lat, lng) {
         updateCoords();
     });
 
-    map.on("click", async e => {
+    map.on("click", e => {
         selectedLat = e.latlng.lat;
         selectedLng = e.latlng.lng;
         marker.setLatLng([selectedLat, selectedLng]);
@@ -83,19 +99,19 @@ function updateCoords() {
         `${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)}`;
 }
 
-
 function showSuccess() {
-    document.getElementById("editSuccessModal").classList.remove("hidden");
+    document.getElementById("successModal").classList.remove("hidden");
 }
 
-function showError(message = "Ocurrió un error. Inténtalo de nuevo más tarde.") {
+function showError(message = "No se pudo actualizar la experiencia.") {
     document.getElementById("errorMessage").innerText = message;
-    document.getElementById("editErrorModal").classList.remove("hidden");
+    document.getElementById("errorModal").classList.remove("hidden");
 }
-
 
 document.getElementById("editForm").addEventListener("submit", async e => {
     e.preventDefault();
+
+    const city = await obtenerCiudad(selectedLat, selectedLng);
 
     const dto = {
         title: document.getElementById("title").value,
@@ -106,7 +122,8 @@ document.getElementById("editForm").addEventListener("submit", async e => {
         endAt: document.getElementById("endAt").value,
         location: JSON.stringify({
             lat: selectedLat,
-            lng: selectedLng
+            lng: selectedLng,
+            city: city
         })
     };
 
@@ -122,7 +139,7 @@ document.getElementById("editForm").addEventListener("submit", async e => {
 
         if (!res.ok) {
             const error = await res.json();
-            showError(error.message ?? "No se pudo actualizar la experiencia.");
+            showError(error.message ?? "Error al guardar los cambios.");
             return;
         }
 
@@ -130,6 +147,6 @@ document.getElementById("editForm").addEventListener("submit", async e => {
 
     } catch (err) {
         console.error(err);
-        showError("Error de conexión. Inténtalo más tarde.");
+        showError("Error de conexión. Intenta más tarde.");
     }
 });
