@@ -113,4 +113,15 @@ export class ExperiencesController {
         return this.experiencesService.delete(id, user.userId);
     }
 
+    @UseGuards(AuthGuard('jwt'))
+    @Patch(':id/activate')
+    async activate(@Param('id') id: string, @Req() req: any) {
+        const user = req.user;
+
+        if (user.role !== 'PROVIDER') {
+            throw new ForbiddenException('Solo los proveedores pueden activar experiencias.');
+        }
+
+        return this.experiencesService.activate(id, user.userId);
+    }
 }
