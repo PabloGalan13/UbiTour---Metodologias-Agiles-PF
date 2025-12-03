@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsNumberString } from 'class-validator';
+import { IsOptional, IsString, IsNumberString, IsIn } from 'class-validator';
 
 export class FilterExperienceDto {
   @IsOptional()
@@ -16,4 +16,9 @@ export class FilterExperienceDto {
   @IsOptional()
   @IsNumberString()
   maxPrice?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsIn(['active', 'inactive', 'all'])
+  status?: string;
 }

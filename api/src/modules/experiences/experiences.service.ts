@@ -1,7 +1,8 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException,ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../infra/prisma.service'; // Asumiendo esta ruta
 import { FilterExperienceDto } from './dto/filter-experience.dto';
 import { CreateExperienceDto } from '../auth/dto/create-experience.dto';
+import { UpdateExperienceDto } from './dto/update-experience.dto';
 
 @Injectable()
 export class ExperiencesService {
@@ -44,6 +45,7 @@ export class ExperiencesService {
       select: { id: true, title: true, providerId: true }
     });
   }
+
   //Obtener todas las experiencias
   async findAll() {
     return this.prisma.experience.findMany({
@@ -51,18 +53,30 @@ export class ExperiencesService {
       orderBy: { startAt: 'asc' },
     });
   }
-  //Filtros de las experiencias
+
   async filter(dto: FilterExperienceDto) {
     const baseFilters: any = {
       isActive: true,
     };
 
-    // FILTRO POR FECHA
+    if (dto.status === 'active') {
+      baseFilters.isActive = true;
+    } else if (dto.status === 'inactive') {
+      baseFilters.isActive = false;
+    }
+
     if (dto.date) {
       baseFilters.startAt = { gte: new Date(dto.date) };
     }
 
-    // FILTRO POR PRECIO
+    if (dto.minPrice) {
+        baseFilters.price = { ...(baseFilters.price || {}), gte: Number(dto.minPrice) };
+    }
+
+    if (dto.maxPrice) {
+        baseFilters.price = { ...(baseFilters.price || {}), lte: Number(dto.maxPrice) };
+    }
+
     if (dto.city) {
       const sql = `
         SELECT id
@@ -89,9 +103,91 @@ export class ExperiencesService {
       });
     }
 
-    // SIN CITY → devolvemos todo lo filtrado por precio/fecha
     return this.prisma.experience.findMany({
       where: baseFilters
+    });
+    
+  }
+
+  async findByProvider(userId: string) {
+    const providerId = await this.findProviderIdByUserId(userId);
+
+    return this.prisma.experience.findMany({
+        where: { providerId },
+    });
+}
+
+  async update(id: string, dto: UpdateExperienceDto, userId: string) {
+    const providerId = await this.findProviderIdByUserId(userId);
+
+    const experience = await this.prisma.experience.findUnique({
+      where: { id },
+      select: { providerId: true }
+    });
+
+    if (!experience) throw new NotFoundException('Experiencia no encontrada');
+    if (experience.providerId !== providerId) {
+      throw new ForbiddenException('No puedes editar experiencias de otro proveedor');
+    }
+
+    // Parseo de location
+    let locationParsed: any = undefined;
+    if (dto.location) {
+      locationParsed = JSON.parse(dto.location);
+    }
+
+    return this.prisma.experience.update({
+      where: { id },
+      data: {
+        title: dto.title,
+        description: dto.description,
+        price: dto.price,
+        capacity: dto.capacity,
+        startAt: new Date(dto.startAt + ":00"),
+        endAt: new Date(dto.endAt + ":00"),
+
+        ...(locationParsed ? { location: locationParsed } : {}),
+      },
+    });
+}
+
+  //Eliminar experiencias
+  async delete(id: string, userId: string) {
+    const providerId = await this.findProviderIdByUserId(userId);
+
+    const experience = await this.prisma.experience.findUnique({
+      where: { id },
+      select: { providerId: true }
+    });
+
+    if (!experience) throw new NotFoundException('Experiencia no encontrada.');
+    if (experience.providerId !== providerId) {
+      throw new ForbiddenException('No puedes eliminar experiencias de otro proveedor.');
+    }
+
+    return this.prisma.experience.update({
+      where: { id },
+      data: { isActive: false }
+    });
+  }
+
+  async activate(id: string, userId: string) {
+    const providerId = await this.findProviderIdByUserId(userId);
+
+    const exp = await this.prisma.experience.findUnique({
+        where: { id },
+        select: { providerId: true }
+    });
+
+    if (!exp) throw new NotFoundException("Experiencia no encontrada.");
+
+    if (exp.providerId !== providerId) {
+        throw new ForbiddenException("No puedes activar experiencias de otro proveedor.");
+    }
+
+    return this.prisma.experience.update({
+        where: { id },
+        data: { isActive: true }
     });
   }
 }

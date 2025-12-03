@@ -1,9 +1,10 @@
-import { Controller, Post, Body, UseGuards, Req, UseInterceptors, UploadedFiles, ForbiddenException,Get,Query } from '@nestjs/common';
+import { Controller, Post,Patch,Delete ,Body,Param ,UseGuards, Req, UseInterceptors, UploadedFiles, ForbiddenException,Get,Query } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ExperiencesService } from './experiences.service';
 import { CreateExperienceDto } from '../auth/dto/create-experience.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { FilterExperienceDto } from './dto/filter-experience.dto';
+import { UpdateExperienceDto } from './dto/update-experience.dto';
 
 @Controller('experiences')
 export class ExperiencesController {
@@ -58,14 +59,69 @@ export class ExperiencesController {
         // 5. Crear la experiencia
         return this.experiencesService.create(finalDto, providerId);
     }
-    
+    //Obtener todas experiencias
     @Get()
     async findAll() {
-    return this.experiencesService.findAll();
+        return this.experiencesService.findAll();
     }
-    
+    //Obtener experiencias por filtro
     @Get('filter')
     async filter(@Query() filters: FilterExperienceDto) {
         return this.experiencesService.filter(filters);
+    }
+
+    //Experencias del provider logueado
+    @UseGuards(AuthGuard('jwt'))
+    @Get('my')
+    async findMine(@Req() req: any) {
+        const user = req.user;
+
+        if (user.role !== 'PROVIDER') {
+        throw new ForbiddenException('Solo los proveedores pueden ver sus experiencias.');
+        }
+
+        return this.experiencesService.findByProvider(user.userId);
+    }
+
+    //Editar experiencia
+    @UseGuards(AuthGuard('jwt'))
+    @Patch(':id')
+    async update(
+        @Param('id') id: string,
+        @Body() dto: UpdateExperienceDto,
+        @Req() req: any
+    ) {
+        const user = req.user;
+
+        if (user.role !== 'PROVIDER') {
+        throw new ForbiddenException('Solo los proveedores pueden editar experiencias.');
+        }
+
+        return this.experiencesService.update(id, dto, user.userId);
+    }
+
+    //Eliminar experiencias
+    @UseGuards(AuthGuard('jwt'))
+    @Delete(':id')
+    async delete(@Param('id') id: string, @Req() req: any) {
+        const user = req.user;
+
+        if (user.role !== 'PROVIDER') {
+        throw new ForbiddenException('Solo los proveedores pueden eliminar experiencias.');
+        }
+
+        return this.experiencesService.delete(id, user.userId);
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Patch(':id/activate')
+    async activate(@Param('id') id: string, @Req() req: any) {
+        const user = req.user;
+
+        if (user.role !== 'PROVIDER') {
+            throw new ForbiddenException('Solo los proveedores pueden activar experiencias.');
+        }
+
+        return this.experiencesService.activate(id, user.userId);
     }
 }

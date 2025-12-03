@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Editar Experiencia - UbiTour</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <style>
+    #map, .leaflet-container {
+        z-index: 0 !important;
+    }
+    #successModal, #errorModal {
+        z-index: 9999 !important;
+    }
+</style>
+</head>
+
+<body class="bg-gray-50 text-gray-900">
+
+    <header class="fixed top-0 inset-x-0 z-50 bg-white/95 backdrop-blur border-b">
+        <nav class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+
+            <div class="flex items-center gap-4 text-sm">
+
+                <a href="experienceList.html"
+                    class="flex items-center gap-1 text-gray-700 hover:text-blue-600 transition duration-150">
+                    <span class="text-lg">←</span>
+                    <span class="font-medium">Experiencias</span>
+                </a>
+
+                <span class="text-gray-300 select-none">|</span>
+
+                <a href="index.html" class="flex items-center gap-2 hover:text-blue-700 transition">
+                    <span class="text-blue-600 text-xl">📍</span>
+                    <span class="font-semibold text-lg text-blue-700">UbiTour</span>
+                </a>
+
+            </div>
+            <div></div>
+
+        </nav>
+    </header>
+
+    <main class="pt-6">
+        <div class="max-w-3xl mx-auto px-4 py-10">
+            <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                <h1 class="text-2xl font-semibold text-gray-800 mb-6">✏️ Editar Experiencia</h1>
+                <p class="text-gray-500 text-sm mb-6">Modifica los campos necesarios y guarda los cambios.</p>
+
+                <form id="editForm" class="space-y-6">
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Título</label>
+                            <input type="text" id="title" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Descripción</label>
+                            <textarea id="description" rows="3"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Precio ($)</label>
+                            <input type="number" id="price" min="0" step="0.01"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Capacidad</label>
+                            <input type="number" id="capacity" min="1"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Fecha Inicio</label>
+                            <input type="datetime-local" id="startAt"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Fecha Fin</label>
+                            <input type="datetime-local" id="endAt"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Ubicación Geográfica</label>
+                        <p class="text-xs text-gray-500 mb-2">Haz clic o arrastra el marcador para ajustar la ubicación.</p>
+
+                        <div id="map" class="w-full h-80 rounded-lg border shadow-inner mb-3"></div>
+
+                        <div class="text-xs bg-gray-100 p-2 rounded text-gray-700">
+                            Coordenadas seleccionadas: 
+                            <span id="coords" class="font-mono font-bold">--</span>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md transition">
+                        Guardar Cambios
+                    </button>
+                </form>
+
+            </div>
+        </div>
+
+        <<div id="successModal" 
+            class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden 
+                    flex items-center justify-center z-50 backdrop-blur-sm">
+
+            <div class="bg-white p-8 rounded-xl shadow-xl max-w-sm w-full text-center">
+
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+                    <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+
+                <h2 class="text-xl font-bold text-gray-800 mb-2">¡Cambios Guardados!</h2>
+                <p class="text-gray-600 text-sm mb-6">La experiencia fue actualizada correctamente.</p>
+
+                <button id="successBtn"
+                    class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition">
+                    Aceptar
+                </button>
+
+            </div>
+        </div>
+
+        <div id="errorModal" 
+            class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden 
+                    flex items-center justify-center z-50 backdrop-blur-sm">
+
+            <div class="bg-white p-8 rounded-xl shadow-xl max-w-sm w-full text-center">
+
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+                    <svg class="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </div>
+
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Error</h2>
+                <p id="errorMessage" class="text-gray-600 text-sm mb-6">
+                    No se pudo actualizar. Intenta nuevamente.
+                </p>
+
+                <button id="errorBtn"
+                    class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition">
+                    Volver
+                </button>
+
+            </div>
+        </div>
+
+    </main>
+
+    <script src="js/auth.js"></script>
+    <script src="js/editExperience.js"></script>
+
+</body>
+</html>
