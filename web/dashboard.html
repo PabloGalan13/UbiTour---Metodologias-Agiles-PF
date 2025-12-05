@@ -2,19 +2,20 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>UbiTour — Panel Principal</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body class="bg-gray-50 text-gray-900">
 
+    <!-- HEADER -->
     <header class="fixed top-0 inset-x-0 z-50 bg-white/95 backdrop-blur border-b">
         <nav class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
             
             <div class="flex items-center gap-4 text-sm">
-                <a href="index.html" class="flex items-center gap-1 text-gray-700 hover:text-blue-600 transition duration-150">
+                <a href="index.html" class="flex items-center gap-1 text-gray-700 hover:text-blue-600">
                     <span class="text-lg">←</span>
                     <span class="font-medium">Experiencias</span>
                 </a>
@@ -27,40 +28,76 @@
                 </a>
             </div>
 
-            <div class="flex items-center gap-3 text-sm">
-                <button
-                    onclick="logout()"
-                    class="px-4 py-2 rounded-full text-white bg-red-500 hover:bg-red-600 font-semibold transition duration-150"
-                >
-                    Cerrar sesión
-                </button>
-            </div>
+            <button onclick="logout()"
+                class="px-4 py-2 rounded-full text-white bg-red-500 hover:bg-red-600 font-semibold">
+                Cerrar sesión
+            </button>
         </nav>
     </header>
 
+    <!-- CONTENIDO -->
     <main class="pt-20">
-        <div class="max-w-4xl mx-auto px-4 py-10">
+        <div class="max-w-5xl mx-auto px-4 py-10">
 
-            <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+            <div class="bg-white p-8 rounded-xl shadow-lg border">
+
                 <h1 class="text-2xl font-semibold text-gray-800 mb-2">Bienvenido a tu Panel 🧭</h1>
                 <p class="text-gray-500 mb-6">Gestiona tus reservas, perfil y más.</p>
 
-                <div class="flex border-b border-gray-200 mb-6">
-                    <button class="py-2 px-4 text-sm font-medium border-b-2 border-blue-600 text-blue-600">
+                <!-- TABS -->
+                <div class="flex border-b mb-6">
+                    <button id="tabPerfil"
+                        class="py-2 px-4 text-sm font-medium border-b-2 border-blue-600 text-blue-600">
                         Mi Perfil
                     </button>
-                    <button class="py-2 px-4 text-sm font-medium text-gray-500 hover:text-gray-700">
+                    <button id="tabReservas"
+                        class="py-2 px-4 text-sm font-medium text-gray-500 hover:text-gray-700">
                         Mis Reservas
                     </button>
-                    </div>
+                </div>
 
-                <div class="space-y-4">
-                    <p class="text-sm font-medium text-green-600">Has iniciado sesión correctamente.</p>
-                    
+                <!-- PERFIL -->
+                <div id="perfilSection">
+                    <p class="text-sm font-medium text-green-600 mb-3">Has iniciado sesión correctamente.</p>
                     <div id="userBox" class="bg-blue-50 border-l-4 border-blue-600 text-blue-800 p-4 rounded-md">
                         Cargando tus datos...
                     </div>
                 </div>
+
+                <!-- RESERVAS -->
+                <div id="reservasSection" class="hidden">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Mis Reservas</h2>
+
+                    <!-- FILTROS -->
+                    <div class="bg-gray-100 p-4 rounded-lg grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+
+                        <select id="filtroExperiencia" class="border rounded-lg px-2 py-1">
+                            <option value="all">Todas las experiencias</option>
+                        </select>
+
+                        <select id="filtroEstado" class="border rounded-lg px-2 py-1">
+                            <option value="ALL">Todos los estados</option>
+                            <option value="PAID">Confirmadas</option>
+                            <option value="CREATED">Pendientes</option>
+                            <option value="CANCELLED">Canceladas</option>
+                            <option value="REFUNDED">Reembolsadas</option>
+                        </select>
+
+                        <input type="text" id="filtroCliente" placeholder="Buscar cliente"
+                            class="border rounded-lg px-2 py-1">
+
+                        <button id="btnAplicarFiltros"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                            Aplicar filtros
+                        </button>
+
+                    </div>
+
+                    <!-- LISTA DE RESERVAS -->
+                    <div id="reservasList"></div>
+
+                </div>
+
             </div>
         </div>
     </main>
