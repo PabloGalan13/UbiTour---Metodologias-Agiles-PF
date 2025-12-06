@@ -90,10 +90,10 @@ Revisa `package.json` en `api/` para los scripts disponibles (`start`, `start:de
 https://ubitour-metodosagiles-pf.atlassian.net/jira/software/projects/UBTK/boards/1?atlOrigin=eyJpIjoiNTliM2FkMjc3NTMwNDkzOWE0ZjM3ODE2MmJkNGJlYzgiLCJwIjoiaiJ9
 
 ## Integrantes
-- Diego Alcantar Acosta
-- Pablo Jesús Galán Valenzuela 
-- Francisco de Jesús López Ruiz
-- Jesús Eduardo Villanueva Godoy
+- Diego Alcantar Acosta - 247122
+- Pablo Jesús Galán Valenzuela - 244752 
+- Francisco de Jesús López Ruiz - 247037
+- Jesús Eduardo Villanueva Godoy - 235078
 
 
   
