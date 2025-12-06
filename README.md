@@ -85,3 +85,15 @@ Revisa `package.json` en `api/` para los scripts disponibles (`start`, `start:de
   ```powershell
   npx prisma generate
   ```
+
+## Tablero Kanban (Jira)
+https://ubitour-metodosagiles-pf.atlassian.net/jira/software/projects/UBTK/boards/1?atlOrigin=eyJpIjoiNTliM2FkMjc3NTMwNDkzOWE0ZjM3ODE2MmJkNGJlYzgiLCJwIjoiaiJ9
+
+## Integrantes
+- Diego Alcantar Acosta
+- Pablo Jesús Galán Valenzuela 
+- Francisco de Jesús López Ruiz
+- Jesús Eduardo Villanueva Godoy
+
+
+  
